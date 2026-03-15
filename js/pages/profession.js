@@ -231,10 +231,11 @@ export class ProfessionPage {
             ? ((change / start.vacancy_count) * 100).toFixed(2) 
             : 0;
 
+        const sign = change >= 0 ? '+' : '';
         const colorClass = change >= 0 ? 'positive' : 'negative';
 
         this.elements.chartRangeChange.innerHTML = `
-            <span class="${colorClass}">${change} (${percent}%)</span>
+            <span class="${colorClass}">${change} (${sign}${percent}%)</span>
         `;
 
         this.elements.chartRangeInfo.classList.remove('hidden');
@@ -292,11 +293,12 @@ export class ProfessionPage {
             return;
         }
 
+        const percentSign = data.change >= 0 ? '+' : '';
         const colorClass = data.change >= 0 ? 'positive' : 'negative';
 
         this.elements.chartChangeIndicator.innerHTML = `
             <span class="chart-change ${colorClass}">
-                ${data.change} (${data.percent}%)
+                ${data.change} (${percentSign}${data.percent}%)
             </span>
         `;
     }
