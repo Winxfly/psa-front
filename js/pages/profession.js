@@ -454,11 +454,61 @@ export class ProfessionPage {
                 
                 const startX = meta.data[startIndex].x;
                 const endX = meta.data[endIndex].x;
+                const startY = meta.data[startIndex].y;
+                const endY = meta.data[endIndex].y;
                 
                 // Рисуем закрашенную область
                 ctx.save();
-                ctx.fillStyle = 'rgba(122, 162, 247, 0.15)';
+                ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
                 ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
+                
+                // Рисуем вертикальные линии
+                ctx.strokeStyle = '#7aa2f7';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, chartArea.top);
+                ctx.lineTo(startX, chartArea.bottom);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(endX, chartArea.top);
+                ctx.lineTo(endX, chartArea.bottom);
+                ctx.stroke();
+                
+                // Рисуем текст с датой и значением для первой точки
+                const startDate = self._formatDateRange(self.clickPoints[0].date);
+                const startValue = self.clickPoints[0].vacancy_count;
+                const startText = `${startDate}\n${startValue} вак.`;
+                
+                ctx.fillStyle = '#e0e0e0';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                
+                // Разбиваем текст на строки
+                const startLines = startText.split('\n');
+                const startXText = startX;
+                const startXTextY = startY - 10;
+                
+                startLines.forEach((line, i) => {
+                    ctx.fillText(line, startXText, startXTextY - (startLines.length - 1 - i) * 14);
+                });
+                
+                // Рисуем текст с датой и значением для второй точки
+                const endDate = self._formatDateRange(self.clickPoints[1].date);
+                const endValue = self.clickPoints[1].vacancy_count;
+                const endText = `${endDate}\n${endValue} вак.`;
+                
+                const endLines = endText.split('\n');
+                const endXText = endX;
+                const endXTextY = endY - 10;
+                
+                endLines.forEach((line, i) => {
+                    ctx.fillText(line, endXText, endXTextY - (endLines.length - 1 - i) * 14);
+                });
+                
                 ctx.restore();
             },
         };
