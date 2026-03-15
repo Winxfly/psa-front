@@ -494,8 +494,9 @@ export class ProfessionPage {
                     }
                 }
                 
-                // Рисуем точки которые выбраны (линии и текст поверх выделения)
-                self.clickPoints.forEach((clickPoint, index) => {
+                // Собираем данные для всех выбранных точек
+                const labelData = [];
+                self.clickPoints.forEach((clickPoint) => {
                     const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
                     if (pointIndex === -1) return;
                     
@@ -504,6 +505,26 @@ export class ProfessionPage {
                     
                     const pointX = meta.data[pointIndex].x;
                     const pointY = meta.data[pointIndex].y;
+                    
+                    const date = self._formatDateRange(clickPoint.date);
+                    const value = clickPoint.vacancy_count;
+                    
+                    labelData.push({ pointX, pointY, date, value });
+                });
+                
+                // Сортируем по X координате
+                labelData.sort((a, b) => a.pointX - b.pointX);
+                
+                // Параметры плашки
+                const padding = 8;
+                const lineHeight = 13;
+                const lines = 2;
+                const boxHeight = lineHeight * lines + padding * 2;
+                const boxY = chartArea.top - boxHeight - 5; // Над графиком
+                
+                // Рисуем плашки
+                labelData.forEach((data, index) => {
+                    const { pointX, pointY, date, value } = data;
                     
                     // Рисуем вертикальную линию
                     ctx.save();
@@ -517,78 +538,61 @@ export class ProfessionPage {
                     ctx.stroke();
                     ctx.restore();
                     
-                    // Рисуем текст с датой и значением (стиль как у тултипа)
-                    const date = self._formatDateRange(clickPoint.date);
-                    const value = clickPoint.vacancy_count;
-                    
-                    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                    
                     // Измеряем текст
+                    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
                     const dateWidth = ctx.measureText(date).width;
                     const valueWidth = ctx.measureText(value + ' вакансий').width;
                     const textWidth = Math.max(dateWidth, valueWidth);
-                    const textHeight = 26; // 13px * 2 lines
-                    const padding = 8;
+                    const boxWidth = textWidth + padding * 2;
                     
-                    // Определяем позицию текста
-                    let textX, textAlign, boxX;
-
-                    // Проверяем правую границу - если близко, рисуем слева от линии
-                    if (pointX + textWidth + padding * 2 + 5 > chartArea.right) {
-                        // Рисуем слева от линии
-                        boxX = pointX - textWidth - padding * 2 - 5;
-                        textX = boxX + padding;
-                        textAlign = 'left';
-                    } else {
-                        // Рисуем справа от линии
-                        boxX = pointX + 5;
-                        textX = boxX + padding;
-                        textAlign = 'left';
+                    // Позиция X - центрируем по точке
+                    let boxX = pointX - boxWidth / 2;
+                    
+                    // Проверка на выход за левую границу
+                    if (boxX < chartArea.left) {
+                        boxX = chartArea.left;
                     }
                     
-                    ctx.textAlign = textAlign;
-                    
-                    // Проверяем верхнюю/нижнюю границу
-                    let textY, textBaseline;
-                    if (pointY < chartArea.top + textHeight + padding * 2 + 10) {
-                        // Близко к верху - рисуем ниже точки
-                        textY = pointY + padding + 5;
-                        textBaseline = 'top';
-                    } else {
-                        // Стандартная позиция - выше точки
-                        textY = pointY - padding - 5;
-                        textBaseline = 'bottom';
+                    // Проверка на выход за правую границу
+                    if (boxX + boxWidth > chartArea.right) {
+                        boxX = chartArea.right - boxWidth;
                     }
                     
-                    ctx.textBaseline = textBaseline;
-                    
-                    // Проверяем пересечение с тултипом
-                    const tooltipOverlap = tooltipX && Math.abs(textX - tooltipX) < 100;
-                    if (tooltipOverlap) {
-                        // Сдвигаем текст ниже или выше
-                        textY = pointY > chartArea.height / 2 ? pointY - 40 : pointY + 30;
-                        ctx.textBaseline = pointY > chartArea.height / 2 ? 'bottom' : 'top';
+                    // Проверка на пересечение с предыдущей плашкой
+                    if (index > 0) {
+                        const prevBox = labelData[index - 1].box;
+                        const minGap = 10;
+                        if (boxX < prevBox.x + prevBox.width + minGap) {
+                            // Сдвигаем вправо
+                            boxX = prevBox.x + prevBox.width + minGap;
+                            
+                            // Проверяем правую границу после сдвига
+                            if (boxX + boxWidth > chartArea.right) {
+                                // Сдвигаем влево предыдущую
+                                const overlap = boxX + boxWidth - chartArea.right;
+                                labelData[index - 1].box.x -= overlap;
+                            }
+                        }
                     }
                     
-                    // Рисуем фон (рамку) как у тултипа
+                    // Сохраняем позицию для следующей итерации
+                    data.box = { x: boxX, width: boxWidth };
+                    
+                    // Рисуем фон (рамку)
                     ctx.save();
                     ctx.fillStyle = 'rgba(33, 34, 52, 0.95)';
                     ctx.strokeStyle = '#3d405f';
                     ctx.lineWidth = 1;
-                    
-                    const boxWidth = textWidth + padding * 2;
-                    const boxHeight = textHeight + padding * 2;
-                    const boxY = ctx.textBaseline === 'top' ? textY - padding : textY - textHeight - padding;
                     
                     ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
                     ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
                     
                     // Рисуем текст (белый цвет, дата сверху, значение снизу)
                     ctx.fillStyle = '#ffffff';
-                    const centerX = boxX + boxWidth / 2;
                     ctx.textAlign = 'center';
-                    ctx.fillText(date, centerX, textY);
-                    ctx.fillText(value + ' вакансий', centerX, textY + 13);
+                    const centerX = boxX + boxWidth / 2;
+                    ctx.fillText(date, centerX, boxY + padding + lineHeight);
+                    ctx.fillText(value + ' вакансий', centerX, boxY + padding + lineHeight * 2);
                     
                     ctx.restore();
                 });
