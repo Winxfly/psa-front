@@ -11,6 +11,7 @@ export class ProfessionPage {
         this.container = container;
         this.profession = null;
         this.chart = null;
+        this.timeRange = 'all';
         
         // Элементы
         this.elements = {};
@@ -38,9 +39,16 @@ export class ProfessionPage {
                 <!-- Информация о профессии -->
             </div>
             
-            <div class="chart-container hidden" id="chart-container">
+            <div class="chart-container" id="chart-container">
                 <h2 class="chart-title">Динамика вакансий</h2>
                 <canvas></canvas>
+                <div class="chart-controls" id="chart-controls">
+                    <button class="chart-btn" data-range="month">Месяц</button>
+                    <button class="chart-btn" data-range="3months">3 мес</button>
+                    <button class="chart-btn" data-range="6months">6 мес</button>
+                    <button class="chart-btn" data-range="year">Год</button>
+                    <button class="chart-btn active" data-range="all">Всё время</button>
+                </div>
             </div>
             
             <div class="loading hidden" id="profession-loading">Загрузка данных...</div>
@@ -92,6 +100,7 @@ export class ProfessionPage {
             backButton: this.container.querySelector('#back-button'),
             professionInfo: this.container.querySelector('#profession-info'),
             chartContainer: this.container.querySelector('#chart-container'),
+            chartControls: this.container.querySelector('#chart-controls'),
             loading: this.container.querySelector('#profession-loading'),
             error: this.container.querySelector('#profession-error'),
             tablesContainer: this.container.querySelector('#tables-container'),
@@ -108,6 +117,29 @@ export class ProfessionPage {
             e.preventDefault();
             window.location.hash = '#/';
         });
+        
+        // Контролы времени
+        this.elements.chartControls.addEventListener('click', (e) => {
+            if (e.target.classList.contains('chart-btn')) {
+                this._setTimeRange(e.target.dataset.range);
+            }
+        });
+    }
+    
+    /**
+     * Установка диапазона времени
+     * @param {string} range
+     */
+    _setTimeRange(range) {
+        this.timeRange = range;
+        
+        // Обновляем активную кнопку
+        const buttons = this.elements.chartControls.querySelectorAll('.chart-btn');
+        buttons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.range === range);
+        });
+        
+        this._renderChart();
     }
     
     /**
@@ -171,8 +203,11 @@ export class ProfessionPage {
             this.chart = new ChartComponent(this.elements.chartContainer.querySelector('canvas').parentElement);
         }
         
-        const labels = trend.map(point => point.date);
-        const data = trend.map(point => point.vacancy_count);
+        // Фильтруем данные по периоду
+        const filteredTrend = this._filterTrendByRange(trend);
+        
+        const labels = filteredTrend.map(point => point.date);
+        const data = filteredTrend.map(point => point.vacancy_count);
         
         this.chart.render({
             datasets: [{
@@ -199,6 +234,30 @@ export class ProfessionPage {
                 },
             },
         });
+    }
+    
+    /**
+     * Фильтрация тренда по периоду
+     * @param {Array} trend
+     * @returns {Array}
+     */
+    _filterTrendByRange(trend) {
+        if (this.timeRange === 'all') {
+            return trend;
+        }
+        
+        const now = new Date();
+        const cutoffDates = {
+            month: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+            '3months': new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000),
+            '6months': new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
+            year: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000),
+        };
+        
+        const cutoff = cutoffDates[this.timeRange];
+        if (!cutoff) return trend;
+        
+        return trend.filter(point => new Date(point.date) >= cutoff);
     }
     
     /**
