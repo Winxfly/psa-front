@@ -531,18 +531,21 @@ export class ProfessionPage {
                     const padding = 8;
                     
                     // Определяем позицию текста
-                    let textX, textAlign, boxX;
+                    let textX, textAlign, boxX, centerX;
                     
                     // Проверяем правую границу - если близко, рисуем слева от линии
                     if (pointX + textWidth + padding * 2 + 5 > chartArea.right) {
-                        textX = pointX - padding - 5;
-                        textAlign = 'right';
-                        boxX = pointX - textWidth - padding * 2 - 5 - padding;
+                        // Рисуем слева от линии
+                        boxX = pointX - textWidth - padding * 2 - 5;
+                        textX = boxX + padding;
+                        textAlign = 'left';
+                        centerX = boxX + boxWidth / 2;
                     } else {
                         // Рисуем справа от линии
-                        textX = pointX + padding + 5;
+                        boxX = pointX + 5;
+                        textX = boxX + padding;
                         textAlign = 'left';
-                        boxX = pointX + padding + 5;
+                        centerX = boxX + boxWidth / 2;
                     }
                     
                     ctx.textAlign = textAlign;
@@ -584,8 +587,10 @@ export class ProfessionPage {
                     
                     // Рисуем текст (белый цвет, дата сверху, значение снизу)
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillText(date, textX, textY);
-                    ctx.fillText(value + ' вакансий', textX, textY + 13);
+                    const centerX = boxX + boxWidth / 2;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(date, centerX, textY);
+                    ctx.fillText(value + ' вакансий', centerX, textY + 13);
                     
                     ctx.restore();
                 });
