@@ -5,6 +5,7 @@
 import { api } from '../api.js';
 import { ChartComponent } from '../components/chart.js';
 import { escapeHtml, formatDate, formatShortDate } from '../utils/helpers.js';
+import { Chart } from 'chart.js';
 
 export class ProfessionPage {
     constructor(container) {
@@ -405,6 +406,11 @@ export class ProfessionPage {
         
         // Плагин для выделения диапазона
         const rangeHighlightPlugin = this._createRangeHighlightPlugin();
+        
+        // Регистрируем плагин глобально если ещё не зарегистрирован
+        if (!Chart.registry.getPlugin('rangeHighlight')) {
+            Chart.register(rangeHighlightPlugin);
+        }
         
         this.chart.render({
             datasets: [{
