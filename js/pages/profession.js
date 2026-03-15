@@ -471,6 +471,9 @@ export class ProfessionPage {
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
+                const tooltip = chart.tooltip;
+                const tooltipActive = tooltip && tooltip._active && tooltip._active.length > 0;
+                const tooltipX = tooltipActive ? tooltip._active[0].element.x : null;
                 
                 // Рисуем точки которые выбраны
                 self.clickPoints.forEach((clickPoint, index) => {
@@ -498,14 +501,61 @@ export class ProfessionPage {
                     const date = self._formatDateRange(clickPoint.date);
                     const value = clickPoint.vacancy_count;
                     
-                    ctx.fillStyle = '#e0e0e0';
                     ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
                     
-                    const textX = pointX + 5;
-                    const textY = pointY - 10;
+                    // Измеряем текст
+                    const dateWidth = ctx.measureText(date).width;
+                    const valueWidth = ctx.measureText(value + ' вак.').width;
+                    const textWidth = Math.max(dateWidth, valueWidth);
+                    const textHeight = 28; // 14px * 2 lines
                     
+                    // Позиция текста
+                    let textX = pointX + 5;
+                    let textY = pointY - 10;
+                    
+                    // Проверка на выход за правую границу
+                    if (textX + textWidth > chartArea.right) {
+                        textX = pointX - textWidth - 5;
+                        ctx.textAlign = 'right';
+                    }
+                    
+                    // Проверка на выход за верхнюю границу
+                    if (textY < chartArea.top + textHeight) {
+                        textY = pointY + 20;
+                        ctx.textBaseline = 'top';
+                    }
+                    
+                    // Проверка на выход за нижнюю границу
+                    if (textY > chartArea.bottom) {
+                        textY = pointY - textHeight - 5;
+                        ctx.textBaseline = 'bottom';
+                    }
+                    
+                    // Проверяем пересечение с тултипом
+                    const tooltipOverlap = tooltipX && Math.abs(textX - tooltipX) < 100;
+                    if (tooltipOverlap) {
+                        // Сдвигаем текст ниже или выше
+                        textY = pointY > chartArea.height / 2 ? pointY - 30 : pointY + 30;
+                    }
+                    
+                    // Рисуем фон (рамку)
+                    ctx.fillStyle = 'rgba(33, 34, 52, 0.95)';
+                    ctx.strokeStyle = '#3d405f';
+                    ctx.lineWidth = 1;
+                    
+                    const padding = 6;
+                    const boxX = ctx.textAlign === 'right' ? textX - textWidth - padding : textX - padding;
+                    const boxY = ctx.textBaseline === 'top' ? textY - padding : textY - textHeight - padding;
+                    const boxWidth = textWidth + padding * 2;
+                    const boxHeight = textHeight + padding * 2;
+                    
+                    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+                    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+                    
+                    // Рисуем текст
+                    ctx.fillStyle = '#e0e0e0';
                     ctx.fillText(date, textX, textY);
                     ctx.fillText(value + ' вак.', textX, textY - 14);
                     
