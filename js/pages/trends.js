@@ -46,7 +46,13 @@ export class TrendsPage {
     _render() {
         this.container.innerHTML = `
             <div class="chart-container" id="chart-container">
-                <h2 class="chart-title">Динамика вакансий</h2>
+                <div class="chart-header">
+                    <h2 class="chart-title">Динамика вакансий</h2>
+                    <div class="chart-actions">
+                        <span class="selection-count" id="selection-count">0/5</span>
+                        <button class="btn-reset-small" id="btn-reset">Сбросить</button>
+                    </div>
+                </div>
                 <canvas></canvas>
                 <div class="chart-controls" id="chart-controls">
                     <button class="chart-btn" data-range="month">Месяц</button>
@@ -55,10 +61,6 @@ export class TrendsPage {
                     <button class="chart-btn" data-range="year">Год</button>
                     <button class="chart-btn active" data-range="all">Всё время</button>
                 </div>
-            </div>
-            <div class="trends-header">
-                <span class="selected-count" id="selected-count">Выбрано: 0</span>
-                <button class="btn-reset" id="btn-reset">Сбросить</button>
             </div>
             <div class="profession-list" id="profession-list">
                 <!-- Список профессий с чекбоксами -->
@@ -84,7 +86,7 @@ export class TrendsPage {
             loading: this.container.querySelector('#trends-loading'),
             error: this.container.querySelector('#trends-error'),
             empty: this.container.querySelector('#trends-empty'),
-            selectedCount: this.container.querySelector('#selected-count'),
+            selectionCount: this.container.querySelector('#selection-count'),
             resetButton: this.container.querySelector('#btn-reset'),
         };
     }
@@ -194,8 +196,9 @@ export class TrendsPage {
         this.elements.professionList.innerHTML = '';
         
         const selectedCount = store.getSelectedCount();
-        if (this.elements.selectedCount) {
-            this.elements.selectedCount.textContent = `Выбрано: ${selectedCount}`;
+        const maxSelected = store.getMaxSelected();
+        if (this.elements.selectionCount) {
+            this.elements.selectionCount.textContent = `${selectedCount}/${maxSelected}`;
         }
         
         this.professions.forEach(profession => {
@@ -205,7 +208,7 @@ export class TrendsPage {
             item.className = `profession-item ${isSelected ? 'selected' : ''}`;
             item.dataset.id = profession.id;
             
-            const maxReached = selectedCount >= store.getMaxSelected() && !isSelected;
+            const maxReached = selectedCount >= maxSelected && !isSelected;
             
             item.innerHTML = `
                 <input 

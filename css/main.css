@@ -247,41 +247,6 @@ a:hover {
 /* ============================================
    Profession List (Trends page)
    ============================================ */
-.trends-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0 16px;
-    padding: 12px 16px;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-}
-
-.selected-count {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.btn-reset {
-    padding: 8px 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
-}
-
-.btn-reset:hover {
-    background-color: var(--bg-hover);
-    border-color: var(--accent-error);
-    color: var(--accent-error);
-}
-
 .profession-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -466,11 +431,51 @@ a:hover {
     min-height: 450px;
 }
 
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
 .chart-title {
     font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 16px;
     color: var(--text-primary);
+    margin: 0;
+}
+
+.chart-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.selection-count {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background-color: var(--bg-secondary);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-reset-small {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-reset-small:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-error);
+    color: var(--accent-error);
 }
 
 .chart-controls {
