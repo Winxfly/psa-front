@@ -69,11 +69,8 @@ a:hover {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
 }
 
-.header .container,
-.footer .container,
 .main .container {
     padding: 0 20px;
 }
@@ -118,6 +115,7 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 48px;
+    padding: 0 20px;
 }
 
 .logo-section {
@@ -677,6 +675,7 @@ a:hover {
 
 .footer .container {
     display: flex;
+    padding: 0 20px;
 }
 
 .footer-content {
@@ -749,10 +748,19 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+    .main .container {
+        padding: 0 20px;
+    }
+    
+    .header {
+        padding: 16px 0;
+    }
+    
     .header .container {
         flex-direction: column;
         gap: 16px;
         justify-content: center;
+        padding: 0;
     }
 
     .logo {
@@ -773,8 +781,13 @@ a:hover {
         padding: 16px;
     }
 
+    .footer {
+        padding: 20px 0;
+    }
+    
     .footer .container {
         justify-content: center;
+        padding: 0;
     }
 
     .footer-content {
