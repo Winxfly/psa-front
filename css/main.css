@@ -126,6 +126,8 @@ a:hover {
 }
 
 .logo-link {
+    display: flex;
+    align-items: center;
     text-decoration: none !important;
     color: inherit;
 }
@@ -689,6 +691,7 @@ a:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding-left: 0;
 }
 
 .footer-copyright {
