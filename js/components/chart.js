@@ -20,10 +20,9 @@ export class ChartComponent {
      * @param {Object} config - Конфигурация графика
      * @param {Array} config.datasets - Наборы данных
      * @param {Array} config.labels - Метки по оси X
-     * @param {Array} config.plugins - Плагины
      * @param {Object} config.options - Дополнительные опции
      */
-    render({ datasets, labels, plugins = [], options = {} }) {
+    render({ datasets, labels, options = {} }) {
         const ctx = this._getOrCreateCanvas();
         
         const chartColors = getChartColors(datasets.length);
@@ -54,7 +53,7 @@ export class ChartComponent {
                     const activePoint = chart.tooltip._active[0];
                     const { x } = activePoint.element;
                     const { top, bottom } = chart.chartArea;
-                    
+
                     ctx.save();
                     ctx.beginPath();
                     ctx.moveTo(x, top);
@@ -77,7 +76,6 @@ export class ChartComponent {
                 labels: labels,
                 datasets: chartDatasets,
             },
-            plugins: plugins || [],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,

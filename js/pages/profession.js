@@ -26,6 +26,10 @@ export class ProfessionPage {
      * @param {string} id - ID профессии
      */
     async init(id) {
+        // Регистрируем плагин для выделения один раз
+        const rangeHighlightPlugin = this._createRangeHighlightPlugin();
+        window.Chart.register(rangeHighlightPlugin);
+        
         this._render();
         this._cacheElements();
         this._attachListeners();
@@ -184,10 +188,6 @@ export class ProfessionPage {
             }
         });
 
-        console.log('[Click] clickX:', clickX);
-        console.log('[Click] closestPoint:', closestPoint);
-        console.log('[Click] all filteredTrend:', this.filteredTrend.map((p, i) => `${i}: ${p.date}`));
-
         if (!closestPoint) return;
 
         const clickedPoint = closestPoint;
@@ -217,10 +217,10 @@ export class ProfessionPage {
             this.clickPoints = [clickedPoint];
         }
 
-        console.log('[Click] clickPoints after:', this.clickPoints);
-
-        // Обновляем график для перерисовки плагина - пересоздаём
-        this._renderChart();
+        // Обновляем график без перерисовки
+        if (this.chart && this.chart.chart) {
+            this.chart.chart.update('none');
+        }
 
         // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
@@ -341,19 +341,16 @@ export class ProfessionPage {
      * @param {string} id
      */
     async _loadProfessionData(id) {
-        console.log('[ProfessionPage] Loading profession:', id);
         this._showLoading();
         
         try {
             // Загружаем данные с трендом
             this.profession = await api.getProfessionLatest(id, true);
-            console.log('[ProfessionPage] Loaded:', this.profession);
             this._renderProfessionInfo();
             this._renderChart();
             this._renderTables();
             this._showContent();
         } catch (error) {
-            console.error('[ProfessionPage] Error:', error);
             this._showError(error.message);
         }
     }
@@ -403,9 +400,6 @@ export class ProfessionPage {
         const labels = this.filteredTrend.map(point => point.date);
         const data = this.filteredTrend.map(point => point.vacancy_count);
         
-        // Плагин для выделения диапазона
-        const rangeHighlightPlugin = this._createRangeHighlightPlugin();
-        
         this.chart.render({
             datasets: [{
                 label: this.profession.profession_name,
@@ -415,7 +409,6 @@ export class ProfessionPage {
                 })),
             }],
             labels: labels,
-            plugins: [rangeHighlightPlugin],
             options: {
                 plugins: {
                     legend: {
@@ -450,9 +443,7 @@ export class ProfessionPage {
         
         return {
             id: 'rangeHighlight',
-            beforeDraw: (chart) => {
-                console.log('[RangeHighlight] beforeDraw, clickPoints:', self.clickPoints);
-                
+            afterDatasetsDraw: (chart) => {
                 if (self.clickPoints.length !== 2) return;
                 
                 const ctx = chart.ctx;
@@ -462,28 +453,16 @@ export class ProfessionPage {
                 const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                 const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
                 
-                console.log('[RangeHighlight] indices:', { startIndex, endIndex });
-                console.log('[RangeHighlight] clickPoints dates:', self.clickPoints.map(p => p.date));
-                console.log('[RangeHighlight] filteredTrend dates:', self.filteredTrend.map(p => p.date));
-                
-                if (startIndex === -1 || endIndex === -1) {
-                    console.log('[RangeHighlight] indices not found');
-                    return;
-                }
+                if (startIndex === -1 || endIndex === -1) return;
                 
                 // Получаем X координаты
                 const meta = chart.getDatasetMeta(0);
-                if (!meta.data[startIndex] || !meta.data[endIndex]) {
-                    console.log('[RangeHighlight] data points not found');
-                    return;
-                }
+                if (!meta.data[startIndex] || !meta.data[endIndex]) return;
                 
                 const startX = meta.data[startIndex].x;
                 const endX = meta.data[endIndex].x;
                 const startY = meta.data[startIndex].y;
                 const endY = meta.data[endIndex].y;
-                
-                console.log('[RangeHighlight] drawing at x:', { startX, endX });
                 
                 // Рисуем закрашенную область
                 ctx.save();
