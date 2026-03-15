@@ -154,17 +154,26 @@ export class ProfessionPage {
      * @param {MouseEvent} e
      */
     _handleChartClick(e) {
-        if (!this.chart || !this.filteredTrend.length) return;
+        console.log('[ProfessionPage] Chart click:', e);
+        
+        if (!this.chart || !this.filteredTrend.length) {
+            console.log('[ProfessionPage] No chart or data');
+            return;
+        }
         
         const rect = this.elements.chartCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const chartWidth = this.chart.chartArea.width;
         const clickRatio = x / chartWidth;
         
+        console.log('[ProfessionPage] Click position:', { x, chartWidth, clickRatio });
+        
         // Находим ближайшую точку данных
         const pointIndex = Math.round(clickRatio * (this.filteredTrend.length - 1));
         const clampedIndex = Math.max(0, Math.min(this.filteredTrend.length - 1, pointIndex));
         const clickedPoint = this.filteredTrend[clampedIndex];
+        
+        console.log('[ProfessionPage] Clicked point:', clickedPoint);
         
         if (!clickedPoint) return;
         
@@ -180,6 +189,8 @@ export class ProfessionPage {
                 this.clickPoints.push(clickedPoint);
             }
         }
+        
+        console.log('[ProfessionPage] Click points:', this.clickPoints);
         
         // Сортируем по дате
         this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -405,26 +416,28 @@ export class ProfessionPage {
      * @returns {Object}
      */
     _createRangeHighlightPlugin() {
-        const clickPoints = this.clickPoints;
-        const chartData = this.filteredTrend;
+        const self = this;
         
         return {
             id: 'rangeHighlight',
             beforeDraw: (chart) => {
-                if (clickPoints.length !== 2) return;
+                if (self.clickPoints.length !== 2) return;
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
                 
                 // Находим индексы точек
-                const startIndex = chartData.findIndex(p => p.date === clickPoints[0].date);
-                const endIndex = chartData.findIndex(p => p.date === clickPoints[1].date);
+                const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
+                const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
                 
                 if (startIndex === -1 || endIndex === -1) return;
                 
                 // Получаем X координаты
-                const startX = chart.getDatasetMeta(0).data[startIndex].x;
-                const endX = chart.getDatasetMeta(0).data[endIndex].x;
+                const meta = chart.getDatasetMeta(0);
+                if (!meta.data[startIndex] || !meta.data[endIndex]) return;
+                
+                const startX = meta.data[startIndex].x;
+                const endX = meta.data[endIndex].x;
                 
                 // Рисуем закрашенную область
                 ctx.save();
