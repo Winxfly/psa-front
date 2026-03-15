@@ -211,7 +211,9 @@ export class ProfessionPage {
 
         // Обновляем график для перерисовки плагина
         if (this.chart && this.chart.chart) {
-            this.chart.chart.update();
+            // Принудительная перерисовка
+            this.chart.chart.update('none');
+            this.chart.chart.draw();
         }
 
         // Показываем/скрываем данные
