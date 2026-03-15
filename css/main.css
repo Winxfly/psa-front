@@ -11,9 +11,10 @@
     --bg-surface: #32354f;
     --bg-hover: #3d405f;
     
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0b0;
-    --text-muted: #6b6d85;
+    --text-primary: #ffffff;
+    --text-secondary: #d0d0d0;
+    --text-muted: #9090a0;
+    --text-dark: #1a1a2e;
     
     --accent-primary: #7aa2f7;
     --accent-hover: #5d87e5;
@@ -250,9 +251,9 @@ a:hover {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 10px;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
 
 .profession-item {
@@ -425,7 +426,7 @@ a:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 0;
     box-shadow: var(--shadow-sm);
     position: relative;
     height: 400px;
@@ -441,8 +442,12 @@ a:hover {
 .chart-controls {
     display: flex;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .chart-btn {
@@ -455,6 +460,7 @@ a:hover {
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: background-color 0.15s, border-color 0.15s;
+    white-space: nowrap;
 }
 
 .chart-btn:hover {
@@ -476,6 +482,7 @@ a:hover {
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
     color: var(--accent-warning);
+    text-align: center;
 }
 
 /* ============================================

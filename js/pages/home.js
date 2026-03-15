@@ -114,18 +114,28 @@ export class HomePage {
      * Рендер списка профессий
      */
     _renderProfessions() {
+        console.log('[HomePage] _renderProfessions, count:', this.filteredProfessions.length);
+        console.log('[HomePage] professionsList element:', this.elements.professionsList);
+        
+        if (!this.elements.professionsList) {
+            console.error('[HomePage] professionsList element not found!');
+            return;
+        }
+        
         this.elements.professionsList.innerHTML = '';
+        this.elements.professionsList.classList.remove('hidden');
         
         if (this.filteredProfessions.length === 0) {
             this.elements.empty.classList.remove('hidden');
             this.elements.loading.classList.add('hidden');
+            console.log('[HomePage] No professions, showing empty');
             return;
         }
         
         this.elements.empty.classList.add('hidden');
         this.elements.loading.classList.add('hidden');
         
-        this.filteredProfessions.forEach(profession => {
+        this.filteredProfessions.forEach((profession, index) => {
             const card = document.createElement('a');
             card.className = 'profession-card';
             card.href = `#/profession/${profession.id}`;
@@ -137,6 +147,8 @@ export class HomePage {
             card.appendChild(title);
             this.elements.professionsList.appendChild(card);
         });
+        
+        console.log('[HomePage] Rendered cards:', this.elements.professionsList.children.length);
     }
     
     /**

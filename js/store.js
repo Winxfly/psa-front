@@ -23,6 +23,9 @@ class Store {
      * @returns {string[]}
      */
     _loadSelectedProfessions() {
+        // Сбрасываем выбранные профессии при каждой загрузке
+        return [];
+        /*
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             return stored ? JSON.parse(stored) : [];
@@ -30,6 +33,7 @@ class Store {
             console.error('[Store] Error loading selected professions:', e);
             return [];
         }
+        */
     }
     
     /**

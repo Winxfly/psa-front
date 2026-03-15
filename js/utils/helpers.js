@@ -27,9 +27,7 @@ export function formatDate(date, options = {}) {
     const defaultOptions = {
         day: 'numeric',
         month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric'
     };
     return d.toLocaleDateString('ru-RU', { ...defaultOptions, ...options });
 }

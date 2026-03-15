@@ -43,7 +43,6 @@ export class TrendsPage {
                 <h2 class="chart-title">Динамика вакансий</h2>
                 <canvas></canvas>
                 <div class="chart-controls" id="chart-controls">
-                    <button class="chart-btn" data-range="week">Неделя</button>
                     <button class="chart-btn" data-range="month">Месяц</button>
                     <button class="chart-btn" data-range="3months">3 мес</button>
                     <button class="chart-btn" data-range="6months">6 мес</button>
