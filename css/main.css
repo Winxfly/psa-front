@@ -458,20 +458,16 @@ a:hover {
     right: 24px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    height: 56px;
+    align-items: center;
+    height: 40px;
 }
 
-.chart-header-left {
+.chart-header-center {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.chart-header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    margin: 0 16px;
 }
 
 .chart-title {
@@ -479,7 +475,7 @@ a:hover {
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
-    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .chart-change-indicator {
@@ -503,8 +499,9 @@ a:hover {
 
 .chart-range-info {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
+    white-space: nowrap;
 }
 
 .chart-range-dates {

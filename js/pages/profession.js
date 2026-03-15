@@ -45,8 +45,8 @@ export class ProfessionPage {
             
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
-                    <div class="chart-header-left">
-                        <h2 class="chart-title">Динамика вакансий</h2>
+                    <h2 class="chart-title">Динамика вакансий</h2>
+                    <div class="chart-header-center">
                         <div class="chart-range-info hidden" id="chart-range-info">
                             <span class="chart-range-dates" id="chart-range-dates"></span>
                             <span class="chart-range-change" id="chart-range-change"></span>
@@ -178,30 +178,25 @@ export class ProfessionPage {
 
         if (!clickedPoint) return;
 
-        // Третий клик — сброс
+        // Логика кликов:
+        // 0 точек -> 1 точка (первый клик)
+        // 1 точка -> 2 точки (второй клик, показываем выделение)
+        // 2 точки -> 1 точка (третий клик, начинаем новый диапазон)
         if (this.clickPoints.length === 2) {
+            // Третий клик — начинаем новый диапазон с этой точки
             this.clickPoints = [clickedPoint];
         } else if (this.clickPoints.length === 1) {
-            // Проверяем, не та ли это же точка
-            const exists = this.clickPoints.find(p => p.date === clickedPoint.date);
-            if (exists) {
-                // Клик по той же точке — сброс
-                this.clickPoints = [];
-            } else {
-                // Вторая точка
-                this.clickPoints.push(clickedPoint);
-                // Сортируем по дате
-                this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
-            }
+            // Второй клик — добавляем точку
+            this.clickPoints.push(clickedPoint);
+            // Сортируем по дате
+            this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
         } else {
             // Первый клик
             this.clickPoints = [clickedPoint];
         }
 
-        // Обновляем график
-        if (this.chart && this.chart.chart) {
-            this.chart.chart.update('none');
-        }
+        // Обновляем график (перерисовка для плагина)
+        this._renderChart();
 
         // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
