@@ -12,6 +12,10 @@ export class ProfessionPage {
         this.profession = null;
         this.chart = null;
         this.timeRange = 'all';
+        this.filteredTrend = [];
+        
+        // Для выделения диапазона кликами
+        this.clickPoints = [];
         
         // Элементы
         this.elements = {};
@@ -40,14 +44,23 @@ export class ProfessionPage {
             </div>
             
             <div class="chart-container" id="chart-container">
-                <h2 class="chart-title">Динамика вакансий</h2>
-                <canvas></canvas>
+                <div class="chart-header">
+                    <h2 class="chart-title">Динамика вакансий</h2>
+                    <div class="chart-change-indicator" id="chart-change-indicator">
+                        <!-- Индикатор изменения -->
+                    </div>
+                </div>
+                <canvas id="chart-canvas"></canvas>
                 <div class="chart-controls" id="chart-controls">
                     <button class="chart-btn" data-range="month">Месяц</button>
                     <button class="chart-btn" data-range="3months">3 мес</button>
                     <button class="chart-btn" data-range="6months">6 мес</button>
                     <button class="chart-btn" data-range="year">Год</button>
                     <button class="chart-btn active" data-range="all">Всё время</button>
+                </div>
+                <div class="chart-range-info hidden" id="chart-range-info">
+                    <div class="chart-range-dates" id="chart-range-dates"></div>
+                    <div class="chart-range-change" id="chart-range-change"></div>
                 </div>
             </div>
             
@@ -101,6 +114,11 @@ export class ProfessionPage {
             professionInfo: this.container.querySelector('#profession-info'),
             chartContainer: this.container.querySelector('#chart-container'),
             chartControls: this.container.querySelector('#chart-controls'),
+            chartCanvas: this.container.querySelector('#chart-canvas'),
+            chartChangeIndicator: this.container.querySelector('#chart-change-indicator'),
+            chartRangeInfo: this.container.querySelector('#chart-range-info'),
+            chartRangeDates: this.container.querySelector('#chart-range-dates'),
+            chartRangeChange: this.container.querySelector('#chart-range-change'),
             loading: this.container.querySelector('#profession-loading'),
             error: this.container.querySelector('#profession-error'),
             tablesContainer: this.container.querySelector('#tables-container'),
@@ -124,6 +142,143 @@ export class ProfessionPage {
                 this._setTimeRange(e.target.dataset.range);
             }
         });
+        
+        // Клик по canvas для выделения диапазона
+        this.elements.chartCanvas.addEventListener('click', (e) => {
+            this._handleChartClick(e);
+        });
+    }
+    
+    /**
+     * Обработка клика по графику
+     * @param {MouseEvent} e
+     */
+    _handleChartClick(e) {
+        if (!this.chart || !this.filteredTrend.length) return;
+        
+        const rect = this.elements.chartCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const chartWidth = this.chart.chartArea.width;
+        const clickRatio = x / chartWidth;
+        
+        // Находим ближайшую точку данных
+        const pointIndex = Math.round(clickRatio * (this.filteredTrend.length - 1));
+        const clampedIndex = Math.max(0, Math.min(this.filteredTrend.length - 1, pointIndex));
+        const clickedPoint = this.filteredTrend[clampedIndex];
+        
+        if (!clickedPoint) return;
+        
+        // Добавляем или сбрасываем точки
+        if (this.clickPoints.length >= 2) {
+            this.clickPoints = [clickedPoint];
+        } else {
+            // Проверяем, не выбрана ли уже эта точка
+            const exists = this.clickPoints.find(p => p.date === clickedPoint.date);
+            if (exists) {
+                this.clickPoints = this.clickPoints.filter(p => p.date !== clickedPoint.date);
+            } else {
+                this.clickPoints.push(clickedPoint);
+            }
+        }
+        
+        // Сортируем по дате
+        this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Обновляем график и отображение диапазона
+        this._renderChart();
+        
+        if (this.clickPoints.length === 2) {
+            this._showRangeInfo();
+        } else {
+            this._hideRangeInfo();
+        }
+    }
+    
+    /**
+     * Показать информацию о диапазоне
+     */
+    _showRangeInfo() {
+        const [start, end] = this.clickPoints;
+        const startDate = this._formatDateRange(start.date);
+        const endDate = this._formatDateRange(end.date);
+        
+        this.elements.chartRangeDates.textContent = `${startDate} — ${endDate}`;
+        
+        const change = end.vacancy_count - start.vacancy_count;
+        const percent = start.vacancy_count !== 0 
+            ? ((change / start.vacancy_count) * 100).toFixed(2) 
+            : 0;
+        
+        const sign = change >= 0 ? '+' : '';
+        const colorClass = change >= 0 ? 'positive' : 'negative';
+        
+        this.elements.chartRangeChange.innerHTML = `
+            <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
+        `;
+        
+        this.elements.chartRangeInfo.classList.remove('hidden');
+    }
+    
+    /**
+     * Скрыть информацию о диапазоне
+     */
+    _hideRangeInfo() {
+        this.elements.chartRangeInfo.classList.add('hidden');
+    }
+    
+    /**
+     * Форматирование даты для диапазона
+     * @param {string} dateStr
+     * @returns {string}
+     */
+    _formatDateRange(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+    
+    /**
+     * Расчёт изменения для индикатора
+     * @returns {Object}
+     */
+    _calculateChange() {
+        if (!this.filteredTrend || this.filteredTrend.length < 2) {
+            return null;
+        }
+        
+        const start = this.filteredTrend[0];
+        const end = this.filteredTrend[this.filteredTrend.length - 1];
+        
+        const change = end.vacancy_count - start.vacancy_count;
+        const percent = start.vacancy_count !== 0 
+            ? ((change / start.vacancy_count) * 100).toFixed(2) 
+            : 0;
+        
+        return { change, percent };
+    }
+    
+    /**
+     * Отобразить индикатор изменения
+     */
+    _renderChangeIndicator() {
+        const data = this._calculateChange();
+        
+        if (!data) {
+            this.elements.chartChangeIndicator.innerHTML = '';
+            return;
+        }
+        
+        const sign = data.change >= 0 ? '+' : '';
+        const colorClass = data.change >= 0 ? 'positive' : 'negative';
+        
+        this.elements.chartChangeIndicator.innerHTML = `
+            <span class="chart-change ${colorClass}">
+                ${sign}${data.change} (${sign}${data.percent}%)
+            </span>
+        `;
     }
     
     /**
@@ -132,6 +287,8 @@ export class ProfessionPage {
      */
     _setTimeRange(range) {
         this.timeRange = range;
+        this.clickPoints = []; // Сбрасываем точки при смене периода
+        this._hideRangeInfo();
         
         // Обновляем активную кнопку
         const buttons = this.elements.chartControls.querySelectorAll('.chart-btn');
@@ -198,16 +355,19 @@ export class ProfessionPage {
         
         this.elements.chartContainer.classList.remove('hidden');
         
+        // Фильтруем данные по периоду
+        this.filteredTrend = this._filterTrendByRange(trend);
+        
         // Инициализируем график если нужно
         if (!this.chart) {
             this.chart = new ChartComponent(this.elements.chartContainer.querySelector('canvas').parentElement);
         }
         
-        // Фильтруем данные по периоду
-        const filteredTrend = this._filterTrendByRange(trend);
+        const labels = this.filteredTrend.map(point => point.date);
+        const data = this.filteredTrend.map(point => point.vacancy_count);
         
-        const labels = filteredTrend.map(point => point.date);
-        const data = filteredTrend.map(point => point.vacancy_count);
+        // Плагин для выделения диапазона
+        const rangeHighlightPlugin = this._createRangeHighlightPlugin();
         
         this.chart.render({
             datasets: [{
@@ -218,6 +378,7 @@ export class ProfessionPage {
                 })),
             }],
             labels: labels,
+            plugins: [rangeHighlightPlugin],
             options: {
                 plugins: {
                     legend: {
@@ -234,6 +395,60 @@ export class ProfessionPage {
                 },
             },
         });
+        
+        // Рендерим индикатор изменения
+        this._renderChangeIndicator();
+    }
+    
+    /**
+     * Создать плагин для выделения диапазона
+     * @returns {Object}
+     */
+    _createRangeHighlightPlugin() {
+        const clickPoints = this.clickPoints;
+        const chartData = this.filteredTrend;
+        
+        return {
+            id: 'rangeHighlight',
+            beforeDraw: (chart) => {
+                if (clickPoints.length !== 2) return;
+                
+                const ctx = chart.ctx;
+                const chartArea = chart.chartArea;
+                
+                // Находим индексы точек
+                const startIndex = chartData.findIndex(p => p.date === clickPoints[0].date);
+                const endIndex = chartData.findIndex(p => p.date === clickPoints[1].date);
+                
+                if (startIndex === -1 || endIndex === -1) return;
+                
+                // Получаем X координаты
+                const startX = chart.getDatasetMeta(0).data[startIndex].x;
+                const endX = chart.getDatasetMeta(0).data[endIndex].x;
+                
+                // Рисуем закрашенную область
+                ctx.save();
+                ctx.fillStyle = 'rgba(122, 162, 247, 0.15)';
+                ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
+                
+                // Рисуем вертикальные линии
+                ctx.strokeStyle = '#7aa2f7';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, chartArea.top);
+                ctx.lineTo(startX, chartArea.bottom);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(endX, chartArea.top);
+                ctx.lineTo(endX, chartArea.bottom);
+                ctx.stroke();
+                
+                ctx.restore();
+            },
+        };
     }
     
     /**

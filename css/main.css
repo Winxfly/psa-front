@@ -464,6 +464,54 @@ a:hover {
     margin: 0;
 }
 
+.chart-change-indicator {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.chart-change {
+    padding: 6px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.chart-change.positive {
+    color: var(--accent-success);
+}
+
+.chart-change.negative {
+    color: var(--accent-error);
+}
+
+.chart-range-info {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.chart-range-dates {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.chart-range-change {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.chart-range-change .positive {
+    color: var(--accent-success);
+}
+
+.chart-range-change .negative {
+    color: var(--accent-error);
+}
+
 .chart-actions {
     display: flex;
     align-items: center;
