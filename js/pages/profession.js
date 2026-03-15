@@ -165,29 +165,33 @@ export class ProfessionPage {
      * @param {MouseEvent} e
      */
     _handleChartClick(e) {
-        console.log('[ProfessionPage] Chart click:', e);
+        console.log('[ProfessionPage] _handleChartClick called');
+        console.log('[ProfessionPage] this.chart:', this.chart);
+        console.log('[ProfessionPage] this.filteredTrend.length:', this.filteredTrend.length);
         
         if (!this.chart || !this.filteredTrend.length) {
             console.log('[ProfessionPage] No chart or data');
             return;
         }
         
+        console.log('[ProfessionPage] this.chart.chartArea:', this.chart.chart?.chartArea);
+
         const rect = this.elements.chartCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const chartWidth = this.chart.chartArea.width;
+        const chartWidth = this.chart.chart?.chartArea?.width || 0;
         const clickRatio = x / chartWidth;
-        
+
         console.log('[ProfessionPage] Click position:', { x, chartWidth, clickRatio });
-        
+
         // Находим ближайшую точку данных
         const pointIndex = Math.round(clickRatio * (this.filteredTrend.length - 1));
         const clampedIndex = Math.max(0, Math.min(this.filteredTrend.length - 1, pointIndex));
         const clickedPoint = this.filteredTrend[clampedIndex];
-        
+
         console.log('[ProfessionPage] Clicked point:', clickedPoint);
-        
+
         if (!clickedPoint) return;
-        
+
         // Добавляем или сбрасываем точки
         if (this.clickPoints.length >= 2) {
             this.clickPoints = [clickedPoint];
@@ -200,15 +204,15 @@ export class ProfessionPage {
                 this.clickPoints.push(clickedPoint);
             }
         }
-        
+
         console.log('[ProfessionPage] Click points:', this.clickPoints);
-        
+
         // Сортируем по дате
         this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
-        
+
         // Обновляем график и отображение диапазона
         this._renderChart();
-        
+
         if (this.clickPoints.length === 2) {
             this._showRangeInfo();
         } else {
