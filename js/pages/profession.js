@@ -400,8 +400,9 @@ export class ProfessionPage {
         const labels = this.filteredTrend.map(point => point.date);
         const data = this.filteredTrend.map(point => point.vacancy_count);
         
-        // Создаём плагин для выделения
+        // Создаём и регистрируем плагин для выделения
         this.rangeHighlightPlugin = this._createRangeHighlightPlugin();
+        window.Chart.register(this.rangeHighlightPlugin);
         
         this.chart.render({
             datasets: [{
@@ -412,7 +413,6 @@ export class ProfessionPage {
                 })),
             }],
             labels: labels,
-            plugins: [this.rangeHighlightPlugin],
             options: {
                 plugins: {
                     legend: {
@@ -620,6 +620,11 @@ export class ProfessionPage {
     destroy() {
         if (this.chart) {
             this.chart.destroy();
+        }
+        
+        // Отменяем регистрацию плагина
+        if (this.rangeHighlightPlugin) {
+            window.Chart.unregister([this.rangeHighlightPlugin]);
         }
     }
 }

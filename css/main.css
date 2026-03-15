@@ -501,6 +501,8 @@ a:hover {
     gap: 16px;
     align-items: center;
     white-space: nowrap;
+    background: none;
+    padding: 0;
 }
 
 .chart-range-dates {
