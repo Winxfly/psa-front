@@ -444,7 +444,8 @@ export class ProfessionPage {
         return {
             id: 'rangeHighlight',
             afterDatasetsDraw: (chart) => {
-                if (self.clickPoints.length !== 2) return;
+                // Проверяем что это наш график (с filteredTrend)
+                if (!self.filteredTrend || self.clickPoints.length !== 2) return;
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
@@ -484,37 +485,30 @@ export class ProfessionPage {
                 ctx.lineTo(endX, chartArea.bottom);
                 ctx.stroke();
                 
-                // Рисуем текст с датой и значением для первой точки
+                // Рисуем текст с датой и значением для первой точки (справа от линии)
                 const startDate = self._formatDateRange(self.clickPoints[0].date);
                 const startValue = self.clickPoints[0].vacancy_count;
-                const startText = `${startDate}\n${startValue} вак.`;
                 
                 ctx.fillStyle = '#e0e0e0';
                 ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                ctx.textAlign = 'center';
+                ctx.textAlign = 'left';
                 ctx.textBaseline = 'bottom';
                 
-                // Разбиваем текст на строки
-                const startLines = startText.split('\n');
-                const startXText = startX;
+                const startXText = startX + 5;
                 const startXTextY = startY - 10;
                 
-                startLines.forEach((line, i) => {
-                    ctx.fillText(line, startXText, startXTextY - (startLines.length - 1 - i) * 14);
-                });
+                ctx.fillText(startDate, startXText, startXTextY);
+                ctx.fillText(startValue + ' вак.', startXText, startXTextY - 14);
                 
-                // Рисуем текст с датой и значением для второй точки
+                // Рисуем текст с датой и значением для второй точки (справа от линии)
                 const endDate = self._formatDateRange(self.clickPoints[1].date);
                 const endValue = self.clickPoints[1].vacancy_count;
-                const endText = `${endDate}\n${endValue} вак.`;
                 
-                const endLines = endText.split('\n');
-                const endXText = endX;
+                const endXText = endX + 5;
                 const endXTextY = endY - 10;
                 
-                endLines.forEach((line, i) => {
-                    ctx.fillText(line, endXText, endXTextY - (endLines.length - 1 - i) * 14);
-                });
+                ctx.fillText(endDate, endXText, endXTextY);
+                ctx.fillText(endValue + ' вак.', endXText, endXTextY - 14);
                 
                 ctx.restore();
             },
