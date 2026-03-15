@@ -484,7 +484,6 @@ a:hover {
 }
 
 .chart-change {
-    padding: 6px 12px;
     background-color: var(--bg-secondary);
     border-radius: var(--radius-sm);
 }

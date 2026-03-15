@@ -181,22 +181,32 @@ export class ProfessionPage {
         // Логика кликов:
         // 0 точек -> 1 точка (первый клик)
         // 1 точка -> 2 точки (второй клик, показываем выделение)
-        // 2 точки -> 1 точка (третий клик, начинаем новый диапазон)
+        // 2 точки -> сброс в 0 (третий клик)
+        // Клик по той же точке -> сброс
         if (this.clickPoints.length === 2) {
-            // Третий клик — начинаем новый диапазон с этой точки
-            this.clickPoints = [clickedPoint];
+            // Третий клик — полный сброс
+            this.clickPoints = [];
         } else if (this.clickPoints.length === 1) {
-            // Второй клик — добавляем точку
-            this.clickPoints.push(clickedPoint);
-            // Сортируем по дате
-            this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
+            // Проверяем, не та ли это же точка
+            const exists = this.clickPoints.find(p => p.date === clickedPoint.date);
+            if (exists) {
+                // Клик по той же точке — сброс
+                this.clickPoints = [];
+            } else {
+                // Вторая точка
+                this.clickPoints.push(clickedPoint);
+                // Сортируем по дате
+                this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
         } else {
             // Первый клик
             this.clickPoints = [clickedPoint];
         }
 
-        // Обновляем график (перерисовка для плагина)
-        this._renderChart();
+        // Обновляем график без перерисовки (только плагины)
+        if (this.chart && this.chart.chart) {
+            this.chart.chart.update('none');
+        }
 
         // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
@@ -213,21 +223,20 @@ export class ProfessionPage {
         const [start, end] = this.clickPoints;
         const startDate = this._formatDateRange(start.date);
         const endDate = this._formatDateRange(end.date);
-        
+
         this.elements.chartRangeDates.textContent = `${startDate} — ${endDate}`;
-        
+
         const change = end.vacancy_count - start.vacancy_count;
         const percent = start.vacancy_count !== 0 
             ? ((change / start.vacancy_count) * 100).toFixed(2) 
             : 0;
-        
-        const sign = change >= 0 ? '+' : '';
+
         const colorClass = change >= 0 ? 'positive' : 'negative';
-        
+
         this.elements.chartRangeChange.innerHTML = `
-            <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
+            <span class="${colorClass}">${change} (${percent}%)</span>
         `;
-        
+
         this.elements.chartRangeInfo.classList.remove('hidden');
     }
     
@@ -277,18 +286,17 @@ export class ProfessionPage {
      */
     _renderChangeIndicator() {
         const data = this._calculateChange();
-        
+
         if (!data) {
             this.elements.chartChangeIndicator.innerHTML = '';
             return;
         }
-        
-        const sign = data.change >= 0 ? '+' : '';
+
         const colorClass = data.change >= 0 ? 'positive' : 'negative';
-        
+
         this.elements.chartChangeIndicator.innerHTML = `
             <span class="chart-change ${colorClass}">
-                ${sign}${data.change} (${sign}${data.percent}%)
+                ${data.change} (${data.percent}%)
             </span>
         `;
     }
