@@ -110,9 +110,10 @@ a:hover {
 
 .header .container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    gap: 32px;
+    gap: 48px;
+    padding-left: 20px;
 }
 
 .logo-section {
@@ -121,13 +122,17 @@ a:hover {
 }
 
 .logo-link {
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
+}
+
+.logo-link:hover {
+    text-decoration: none !important;
 }
 
 .logo-link:hover .logo {
     color: var(--accent-hover);
-    text-decoration: none;
+    text-decoration: none !important;
 }
 
 .logo {
@@ -137,6 +142,7 @@ a:hover {
     letter-spacing: -0.5px;
     margin: 0;
     transition: color 0.15s;
+    text-decoration: none !important;
 }
 
 .nav {
@@ -741,6 +747,8 @@ a:hover {
     .header .container {
         flex-direction: column;
         gap: 16px;
+        justify-content: center;
+        padding-left: 0;
     }
     
     .logo {
