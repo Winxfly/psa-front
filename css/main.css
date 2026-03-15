@@ -1,0 +1,641 @@
+/* ============================================
+   PSA Frontend — Main Styles (Dark Theme)
+   Theme: Gruvbox-inspired
+   ============================================ */
+
+/* CSS Переменные */
+:root {
+    /* Цветовая палитра */
+    --bg-primary: #212234;
+    --bg-secondary: #2a2c44;
+    --bg-surface: #32354f;
+    --bg-hover: #3d405f;
+    
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0b0;
+    --text-muted: #6b6d85;
+    
+    --accent-primary: #7aa2f7;
+    --accent-hover: #5d87e5;
+    --accent-success: #9ece6a;
+    --accent-error: #f7768e;
+    --accent-warning: #e0af68;
+    
+    --border-color: #3d405f;
+    
+    /* Тени */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+    
+    /* Радиусы */
+    --radius: 8px;
+    --radius-sm: 4px;
+    
+    /* Шрифты */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* Сброс */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* База */
+body {
+    font-family: var(--font-family);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Контейнер */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Утилиты */
+.hidden {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.2s ease-in;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.logo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    letter-spacing: -0.5px;
+}
+
+.logo-sub {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.nav {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.nav-btn:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.nav-btn.active {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-primary);
+}
+
+/* ============================================
+   Main Content
+   ============================================ */
+.main {
+    flex: 1;
+    padding: 32px 0;
+}
+
+.page {
+    animation: fadeIn 0.2s ease-in;
+}
+
+/* ============================================
+   Search
+   ============================================ */
+.search-container {
+    margin-bottom: 24px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.15);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Professions Grid
+   ============================================ */
+.professions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.profession-card {
+    display: block;
+    padding: 20px 24px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow: var(--shadow-sm);
+}
+
+.profession-card:hover {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.profession-card:active {
+    transform: translateY(0);
+}
+
+.profession-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Profession List (Trends page)
+   ============================================ */
+.profession-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.profession-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.profession-item:hover {
+    border-color: var(--accent-primary);
+    background-color: var(--bg-hover);
+}
+
+.profession-item.selected {
+    border-color: var(--accent-primary);
+    background-color: var(--bg-hover);
+}
+
+.profession-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent-primary);
+}
+
+.profession-name {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.profession-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Profession Info Block
+   ============================================ */
+.profession-info {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.profession-info-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.profession-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.profession-meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.profession-meta-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.profession-meta-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+.tables-container {
+    margin-top: 24px;
+}
+
+.tables-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 768px) {
+    .tables-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+.table-section {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    padding: 16px 20px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: var(--bg-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.col-num {
+    width: 50px;
+    color: var(--text-muted);
+}
+
+.col-skill {
+    font-weight: 500;
+}
+
+.col-count {
+    width: 100px;
+    text-align: right;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Chart Container
+   ============================================ */
+.chart-container {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    height: 400px;
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.chart-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.chart-btn {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.chart-btn:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+.chart-btn.active {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-primary);
+}
+
+.chart-limit-warning {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background-color: rgba(224, 175, 104, 0.1);
+    border: 1px solid var(--accent-warning);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--accent-warning);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.btn:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 24px;
+}
+
+.back-button:hover {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   States: Loading, Error, Empty
+   ============================================ */
+.loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.error {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--accent-error);
+    font-size: 1rem;
+    background-color: rgba(247, 118, 142, 0.1);
+    border: 1px solid var(--accent-error);
+    border-radius: var(--radius);
+}
+
+.empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.footer {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 20px 0;
+    margin-top: auto;
+}
+
+.footer .container {
+    text-align: center;
+}
+
+.footer p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.footer-note {
+    font-size: 0.8125rem;
+    margin-top: 4px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .nav {
+        justify-content: center;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .professions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profession-meta {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .chart-container {
+        height: 300px;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .nav-btn {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .table-title {
+        font-size: 1rem;
+        padding: 12px 16px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 0.875rem;
+    }
+}
