@@ -115,16 +115,19 @@ export class ProfessionPage {
      * @param {string} id
      */
     async _loadProfessionData(id) {
+        console.log('[ProfessionPage] Loading profession:', id);
         this._showLoading();
         
         try {
             // Загружаем данные с трендом
             this.profession = await api.getProfessionLatest(id, true);
+            console.log('[ProfessionPage] Loaded:', this.profession);
             this._renderProfessionInfo();
             this._renderChart();
             this._renderTables();
             this._showContent();
         } catch (error) {
+            console.error('[ProfessionPage] Error:', error);
             this._showError(error.message);
         }
     }

@@ -29,6 +29,9 @@ export class TrendsPage {
         await this._loadProfessions();
         this._renderProfessionList();
         this._loadSelectedProfessionsData();
+        
+        // Рендерим пустой график сразу
+        this._renderEmptyChart();
     }
     
     /**
@@ -107,6 +110,44 @@ export class TrendsPage {
                 this._updateChart();
                 this._renderProfessionList(); // Обновляем состояние чекбоксов
             }
+        });
+    }
+    
+    /**
+     * Рендер пустого графика
+     */
+    _renderEmptyChart() {
+        const today = new Date();
+        const dates = [];
+        const data = [];
+        
+        // Генерируем 7 пустых точек для визуализации
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+            dates.push(date.toISOString());
+            data.push({ x: date.toISOString(), y: null });
+        }
+        
+        this.chart.render({
+            datasets: [{
+                label: 'Выберите профессии',
+                data: data,
+                borderDash: [5, 5],
+                pointRadius: 0,
+            }],
+            labels: dates,
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false },
+                },
+                scales: {
+                    y: {
+                        ticks: { display: false },
+                        grid: { display: true },
+                    },
+                },
+            },
         });
     }
     

@@ -43,14 +43,17 @@ function init() {
  */
 async function handleHome() {
     console.log('[PSA] Route: Home');
-    
+
     header.setActive('/');
-    
+
     // Очистка предыдущей страницы
     if (currentPage && currentPage.destroy) {
         currentPage.destroy();
     }
     
+    // Очистка контейнера
+    elements.main.innerHTML = '';
+
     // Создание и инициализация страницы
     currentPage = new HomePage(elements.main);
     await currentPage.init();
@@ -61,14 +64,17 @@ async function handleHome() {
  */
 async function handleTrends() {
     console.log('[PSA] Route: Trends');
-    
+
     header.setActive('/trends');
-    
+
     // Очистка предыдущей страницы
     if (currentPage && currentPage.destroy) {
         currentPage.destroy();
     }
     
+    // Очистка контейнера
+    elements.main.innerHTML = '';
+
     // Создание и инициализация страницы
     currentPage = new TrendsPage(elements.main);
     await currentPage.init();
@@ -81,14 +87,17 @@ async function handleTrends() {
  */
 async function handleProfession(params) {
     console.log('[PSA] Route: Profession', params.id);
-    
+
     header.setActive('/');
-    
+
     // Очистка предыдущей страницы
     if (currentPage && currentPage.destroy) {
         currentPage.destroy();
     }
     
+    // Очистка контейнера
+    elements.main.innerHTML = '';
+
     // Создание и инициализация страницы
     currentPage = new ProfessionPage(elements.main);
     await currentPage.init(params.id);
