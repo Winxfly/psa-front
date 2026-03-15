@@ -211,7 +211,10 @@ export class ProfessionPage {
         this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Обновляем график и отображение диапазона
-        this._renderChart();
+        if (this.chart && this.chart.chart) {
+            // Просто обновляем график вместо полной перерисовки
+            this.chart.chart.update('none'); // 'none' для мгновенного обновления без анимации
+        }
 
         if (this.clickPoints.length === 2) {
             this._showRangeInfo();
@@ -392,6 +395,9 @@ export class ProfessionPage {
         const labels = this.filteredTrend.map(point => point.date);
         const data = this.filteredTrend.map(point => point.vacancy_count);
         
+        console.log('[ProfessionPage] Creating chart with', this.filteredTrend.length, 'points');
+        console.log('[ProfessionPage] Click points at render:', this.clickPoints);
+        
         // Плагин для выделения диапазона
         const rangeHighlightPlugin = this._createRangeHighlightPlugin();
         
@@ -436,7 +442,13 @@ export class ProfessionPage {
         return {
             id: 'rangeHighlight',
             beforeDraw: (chart) => {
-                if (self.clickPoints.length !== 2) return;
+                console.log('[RangeHighlight] beforeDraw called');
+                console.log('[RangeHighlight] clickPoints:', self.clickPoints);
+                
+                if (self.clickPoints.length !== 2) {
+                    console.log('[RangeHighlight] Not 2 points, skipping');
+                    return;
+                }
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
@@ -445,14 +457,24 @@ export class ProfessionPage {
                 const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                 const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
                 
-                if (startIndex === -1 || endIndex === -1) return;
+                console.log('[RangeHighlight] indices:', { startIndex, endIndex });
+                
+                if (startIndex === -1 || endIndex === -1) {
+                    console.log('[RangeHighlight] Indices not found');
+                    return;
+                }
                 
                 // Получаем X координаты
                 const meta = chart.getDatasetMeta(0);
-                if (!meta.data[startIndex] || !meta.data[endIndex]) return;
+                if (!meta.data[startIndex] || !meta.data[endIndex]) {
+                    console.log('[RangeHighlight] Data points not found');
+                    return;
+                }
                 
                 const startX = meta.data[startIndex].x;
                 const endX = meta.data[endIndex].x;
+                
+                console.log('[RangeHighlight] Drawing highlight:', { startX, endX });
                 
                 // Рисуем закрашенную область
                 ctx.save();
