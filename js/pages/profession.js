@@ -46,13 +46,15 @@ export class ProfessionPage {
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
                     <h2 class="chart-title">Динамика вакансий</h2>
-                    <div class="chart-change-indicator" id="chart-change-indicator">
-                        <!-- Индикатор изменения -->
+                    <div class="chart-header-right">
+                        <div class="chart-change-indicator" id="chart-change-indicator">
+                            <!-- Индикатор изменения -->
+                        </div>
+                        <div class="chart-range-info hidden" id="chart-range-info">
+                            <div class="chart-range-dates" id="chart-range-dates"></div>
+                            <div class="chart-range-change" id="chart-range-change"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-range-info hidden" id="chart-range-info">
-                    <div class="chart-range-dates" id="chart-range-dates"></div>
-                    <div class="chart-range-change" id="chart-range-change"></div>
                 </div>
                 <canvas id="chart-canvas"></canvas>
                 <div class="chart-controls" id="chart-controls">
@@ -145,18 +147,11 @@ export class ProfessionPage {
         
         // Клик по canvas для выделения диапазона
         const canvas = this.elements.chartCanvas;
-        console.log('[ProfessionPage] Canvas element:', canvas);
         
         if (canvas) {
-            // Используем стрелочную функцию для сохранения this
             canvas.addEventListener('click', (e) => {
-                console.log('[ProfessionPage] Canvas clicked!', e);
-                console.log('[ProfessionPage] this:', this);
-                console.log('[ProfessionPage] filteredTrend:', this.filteredTrend);
                 this._handleChartClick(e);
             });
-        } else {
-            console.error('[ProfessionPage] Canvas not found!');
         }
     }
     
@@ -165,57 +160,48 @@ export class ProfessionPage {
      * @param {MouseEvent} e
      */
     _handleChartClick(e) {
-        console.log('[ProfessionPage] _handleChartClick called');
-        console.log('[ProfessionPage] this.chart:', this.chart);
-        console.log('[ProfessionPage] this.filteredTrend.length:', this.filteredTrend.length);
-        
         if (!this.chart || !this.filteredTrend.length) {
-            console.log('[ProfessionPage] No chart or data');
             return;
         }
-        
-        console.log('[ProfessionPage] this.chart.chartArea:', this.chart.chart?.chartArea);
 
         const rect = this.elements.chartCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const chartWidth = this.chart.chart?.chartArea?.width || 0;
         const clickRatio = x / chartWidth;
 
-        console.log('[ProfessionPage] Click position:', { x, chartWidth, clickRatio });
-
         // Находим ближайшую точку данных
         const pointIndex = Math.round(clickRatio * (this.filteredTrend.length - 1));
         const clampedIndex = Math.max(0, Math.min(this.filteredTrend.length - 1, pointIndex));
         const clickedPoint = this.filteredTrend[clampedIndex];
 
-        console.log('[ProfessionPage] Clicked point:', clickedPoint);
-
         if (!clickedPoint) return;
 
-        // Добавляем или сбрасываем точки
-        if (this.clickPoints.length >= 2) {
+        // Третий клик — сброс
+        if (this.clickPoints.length === 2) {
             this.clickPoints = [clickedPoint];
-        } else {
-            // Проверяем, не выбрана ли уже эта точка
+        } else if (this.clickPoints.length === 1) {
+            // Проверяем, не та ли это же точка
             const exists = this.clickPoints.find(p => p.date === clickedPoint.date);
             if (exists) {
-                this.clickPoints = this.clickPoints.filter(p => p.date !== clickedPoint.date);
+                // Клик по той же точке — сброс
+                this.clickPoints = [];
             } else {
+                // Вторая точка
                 this.clickPoints.push(clickedPoint);
+                // Сортируем по дате
+                this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
             }
+        } else {
+            // Первый клик
+            this.clickPoints = [clickedPoint];
         }
 
-        console.log('[ProfessionPage] Click points:', this.clickPoints);
-
-        // Сортируем по дате
-        this.clickPoints.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // Обновляем график и отображение диапазона
+        // Обновляем график
         if (this.chart && this.chart.chart) {
-            // Просто обновляем график вместо полной перерисовки
-            this.chart.chart.update('none'); // 'none' для мгновенного обновления без анимации
+            this.chart.chart.update('none');
         }
 
+        // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
             this._showRangeInfo();
         } else {
@@ -395,9 +381,6 @@ export class ProfessionPage {
         const labels = this.filteredTrend.map(point => point.date);
         const data = this.filteredTrend.map(point => point.vacancy_count);
         
-        console.log('[ProfessionPage] Creating chart with', this.filteredTrend.length, 'points');
-        console.log('[ProfessionPage] Click points at render:', this.clickPoints);
-        
         // Плагин для выделения диапазона
         const rangeHighlightPlugin = this._createRangeHighlightPlugin();
         
@@ -442,13 +425,7 @@ export class ProfessionPage {
         return {
             id: 'rangeHighlight',
             beforeDraw: (chart) => {
-                console.log('[RangeHighlight] beforeDraw called');
-                console.log('[RangeHighlight] clickPoints:', self.clickPoints);
-                
-                if (self.clickPoints.length !== 2) {
-                    console.log('[RangeHighlight] Not 2 points, skipping');
-                    return;
-                }
+                if (self.clickPoints.length !== 2) return;
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
@@ -457,24 +434,14 @@ export class ProfessionPage {
                 const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                 const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
                 
-                console.log('[RangeHighlight] indices:', { startIndex, endIndex });
-                
-                if (startIndex === -1 || endIndex === -1) {
-                    console.log('[RangeHighlight] Indices not found');
-                    return;
-                }
+                if (startIndex === -1 || endIndex === -1) return;
                 
                 // Получаем X координаты
                 const meta = chart.getDatasetMeta(0);
-                if (!meta.data[startIndex] || !meta.data[endIndex]) {
-                    console.log('[RangeHighlight] Data points not found');
-                    return;
-                }
+                if (!meta.data[startIndex] || !meta.data[endIndex]) return;
                 
                 const startX = meta.data[startIndex].x;
                 const endX = meta.data[endIndex].x;
-                
-                console.log('[RangeHighlight] Drawing highlight:', { startX, endX });
                 
                 // Рисуем закрашенную область
                 ctx.save();
