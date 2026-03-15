@@ -481,11 +481,13 @@ a:hover {
 .chart-change-indicator {
     font-size: 0.95rem;
     font-weight: 600;
+    background-color: var(--bg-secondary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
 }
 
 .chart-change {
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-sm);
+    color: inherit;
 }
 
 .chart-change.positive {
