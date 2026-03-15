@@ -475,7 +475,26 @@ export class ProfessionPage {
                 const tooltipActive = tooltip && tooltip._active && tooltip._active.length > 0;
                 const tooltipX = tooltipActive ? tooltip._active[0].element.x : null;
                 
-                // Рисуем точки которые выбраны
+                // Сначала рисуем закрашенную область (чтобы была под линиями и текстом)
+                if (self.clickPoints.length === 2) {
+                    const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
+                    const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
+                    
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        const meta = chart.getDatasetMeta(0);
+                        if (meta.data[startIndex] && meta.data[endIndex]) {
+                            const startX = meta.data[startIndex].x;
+                            const endX = meta.data[endIndex].x;
+                            
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
+                            ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
+                            ctx.restore();
+                        }
+                    }
+                }
+                
+                // Рисуем точки которые выбраны (линии и текст поверх выделения)
                 self.clickPoints.forEach((clickPoint, index) => {
                     const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
                     if (pointIndex === -1) return;
@@ -496,60 +515,73 @@ export class ProfessionPage {
                     ctx.moveTo(pointX, chartArea.top);
                     ctx.lineTo(pointX, chartArea.bottom);
                     ctx.stroke();
+                    ctx.restore();
                     
-                    // Рисуем текст с датой и значением (справа от линии)
+                    // Рисуем текст с датой и значением
                     const date = self._formatDateRange(clickPoint.date);
                     const value = clickPoint.vacancy_count;
                     
                     ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'bottom';
                     
                     // Измеряем текст
                     const dateWidth = ctx.measureText(date).width;
                     const valueWidth = ctx.measureText(value + ' вак.').width;
                     const textWidth = Math.max(dateWidth, valueWidth);
                     const textHeight = 28; // 14px * 2 lines
+                    const padding = 6;
                     
-                    // Позиция текста
-                    let textX = pointX + 5;
-                    let textY = pointY - 10;
+                    // Определяем позицию текста
+                    let textX, textAlign, boxX;
                     
-                    // Проверка на выход за правую границу
-                    if (textX + textWidth > chartArea.right) {
-                        textX = pointX - textWidth - 5;
-                        ctx.textAlign = 'right';
+                    // Проверяем правую границу - если близко, рисуем слева от линии
+                    if (pointX + textWidth + padding * 2 + 5 > chartArea.right) {
+                        textX = pointX - 5;
+                        textAlign = 'right';
+                        boxX = pointX - textWidth - padding * 2 - 5;
+                    } else {
+                        // Рисуем справа от линии
+                        textX = pointX + 5;
+                        textAlign = 'left';
+                        boxX = pointX + 5;
                     }
                     
-                    // Проверка на выход за верхнюю границу
-                    if (textY < chartArea.top + textHeight) {
+                    ctx.textAlign = textAlign;
+                    
+                    // Проверяем верхнюю/нижнюю границу
+                    let textY, textBaseline;
+                    if (pointY < chartArea.top + textHeight + padding * 2) {
+                        // Близко к верху - рисуем ниже точки
                         textY = pointY + 20;
-                        ctx.textBaseline = 'top';
+                        textBaseline = 'top';
+                    } else if (pointY > chartArea.bottom - padding * 2) {
+                        // Близко к низу - рисуем выше точки
+                        textY = pointY - 10;
+                        textBaseline = 'bottom';
+                    } else {
+                        // Стандартная позиция - выше точки
+                        textY = pointY - 10;
+                        textBaseline = 'bottom';
                     }
                     
-                    // Проверка на выход за нижнюю границу
-                    if (textY > chartArea.bottom) {
-                        textY = pointY - textHeight - 5;
-                        ctx.textBaseline = 'bottom';
-                    }
+                    ctx.textBaseline = textBaseline;
                     
                     // Проверяем пересечение с тултипом
                     const tooltipOverlap = tooltipX && Math.abs(textX - tooltipX) < 100;
                     if (tooltipOverlap) {
                         // Сдвигаем текст ниже или выше
-                        textY = pointY > chartArea.height / 2 ? pointY - 30 : pointY + 30;
+                        textY = pointY > chartArea.height / 2 ? pointY - 35 : pointY + 25;
+                        ctx.textBaseline = pointY > chartArea.height / 2 ? 'bottom' : 'top';
                     }
                     
                     // Рисуем фон (рамку)
+                    ctx.save();
                     ctx.fillStyle = 'rgba(33, 34, 52, 0.95)';
                     ctx.strokeStyle = '#3d405f';
                     ctx.lineWidth = 1;
                     
-                    const padding = 6;
-                    const boxX = ctx.textAlign === 'right' ? textX - textWidth - padding : textX - padding;
-                    const boxY = ctx.textBaseline === 'top' ? textY - padding : textY - textHeight - padding;
                     const boxWidth = textWidth + padding * 2;
                     const boxHeight = textHeight + padding * 2;
+                    const boxY = ctx.textBaseline === 'top' ? textY - padding : textY - textHeight - padding;
                     
                     ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
                     ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
@@ -561,26 +593,6 @@ export class ProfessionPage {
                     
                     ctx.restore();
                 });
-                
-                // Если выбраны 2 точки — рисуем закрашенную область между ними
-                if (self.clickPoints.length === 2) {
-                    const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
-                    const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
-                    
-                    if (startIndex === -1 || endIndex === -1) return;
-                    
-                    const meta = chart.getDatasetMeta(0);
-                    if (!meta.data[startIndex] || !meta.data[endIndex]) return;
-                    
-                    const startX = meta.data[startIndex].x;
-                    const endX = meta.data[endIndex].x;
-                    
-                    // Рисуем закрашенную область
-                    ctx.save();
-                    ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
-                    ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
-                    ctx.restore();
-                }
             },
         };
     }
