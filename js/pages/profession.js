@@ -531,21 +531,19 @@ export class ProfessionPage {
                     const padding = 8;
                     
                     // Определяем позицию текста
-                    let textX, textAlign, boxX, centerX;
-                    
+                    let textX, textAlign, boxX;
+
                     // Проверяем правую границу - если близко, рисуем слева от линии
                     if (pointX + textWidth + padding * 2 + 5 > chartArea.right) {
                         // Рисуем слева от линии
                         boxX = pointX - textWidth - padding * 2 - 5;
                         textX = boxX + padding;
                         textAlign = 'left';
-                        centerX = boxX + boxWidth / 2;
                     } else {
                         // Рисуем справа от линии
                         boxX = pointX + 5;
                         textX = boxX + padding;
                         textAlign = 'left';
-                        centerX = boxX + boxWidth / 2;
                     }
                     
                     ctx.textAlign = textAlign;
