@@ -53,15 +53,15 @@ export class TrendsPage {
                     <button class="chart-btn active" data-range="all">Всё время</button>
                 </div>
             </div>
-            <div class="chart-limit-warning hidden" id="chart-limit-warning">
-                Максимум 5 профессий для сравнения
-            </div>
             <div class="profession-list" id="profession-list">
                 <!-- Список профессий с чекбоксами -->
             </div>
             <div class="loading hidden" id="trends-loading">Загрузка данных...</div>
             <div class="error hidden" id="trends-error"></div>
             <div class="empty hidden" id="trends-empty">Выберите профессии для отображения трендов</div>
+            <div class="chart-limit-warning hidden" id="chart-limit-warning">
+                Максимум 5 профессий для сравнения
+            </div>
         `;
     }
     
@@ -215,10 +215,7 @@ export class TrendsPage {
             }
         } else {
             // Показываем предупреждение о лимите
-            this.elements.limitWarning.classList.remove('hidden');
-            setTimeout(() => {
-                this.elements.limitWarning.classList.add('hidden');
-            }, 3000);
+            this._showLimitWarning();
             
             // Сбрасываем чекбокс
             const item = this.elements.professionList.querySelector(`[data-id="${id}"]`);
@@ -226,6 +223,18 @@ export class TrendsPage {
                 item.querySelector('.profession-checkbox').checked = false;
             }
         }
+    }
+    
+    /**
+     * Показать предупреждение о лимите
+     */
+    _showLimitWarning() {
+        this.elements.limitWarning.classList.remove('hidden');
+        
+        // Скрываем через 3 секунды
+        setTimeout(() => {
+            this.elements.limitWarning.classList.add('hidden');
+        }, 3000);
     }
     
     /**
