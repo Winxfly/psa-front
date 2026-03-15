@@ -26,9 +26,9 @@ export class ProfessionPage {
      * @param {string} id - ID профессии
      */
     async init(id) {
-        // Регистрируем плагин для выделения один раз
-        const rangeHighlightPlugin = this._createRangeHighlightPlugin();
-        window.Chart.register(rangeHighlightPlugin);
+        // Сбрасываем состояние
+        this.clickPoints = [];
+        this.filteredTrend = [];
         
         this._render();
         this._cacheElements();
@@ -400,6 +400,9 @@ export class ProfessionPage {
         const labels = this.filteredTrend.map(point => point.date);
         const data = this.filteredTrend.map(point => point.vacancy_count);
         
+        // Создаём плагин для выделения
+        this.rangeHighlightPlugin = this._createRangeHighlightPlugin();
+        
         this.chart.render({
             datasets: [{
                 label: this.profession.profession_name,
@@ -409,6 +412,7 @@ export class ProfessionPage {
                 })),
             }],
             labels: labels,
+            plugins: [this.rangeHighlightPlugin],
             options: {
                 plugins: {
                     legend: {
