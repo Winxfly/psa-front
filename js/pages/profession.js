@@ -144,9 +144,17 @@ export class ProfessionPage {
         });
         
         // Клик по canvas для выделения диапазона
-        this.elements.chartCanvas.addEventListener('click', (e) => {
-            this._handleChartClick(e);
-        });
+        const canvas = this.elements.chartCanvas;
+        console.log('[ProfessionPage] Canvas element:', canvas);
+        
+        if (canvas) {
+            canvas.addEventListener('click', (e) => {
+                console.log('[ProfessionPage] Canvas clicked!', e);
+                this._handleChartClick(e);
+            });
+        } else {
+            console.error('[ProfessionPage] Canvas not found!');
+        }
     }
     
     /**
