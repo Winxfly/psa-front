@@ -47,20 +47,22 @@ export class ChartComponent {
         // Плагин для вертикальной линии (crosshair)
         const crosshairPlugin = {
             id: 'crosshair',
-            beforeDraw: (chart) => {
+            afterDraw: (chart) => {
                 if (chart.tooltip._active && chart.tooltip._active.length) {
                     const ctx = chart.ctx;
                     const activePoint = chart.tooltip._active[0];
-                    const { x, y } = activePoint.element;
+                    const { x } = activePoint.element;
                     const { top, bottom } = chart.chartArea;
                     
                     ctx.save();
                     ctx.beginPath();
                     ctx.moveTo(x, top);
                     ctx.lineTo(x, bottom);
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
                     ctx.strokeStyle = '#7aa2f7';
                     ctx.setLineDash([5, 5]);
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 4;
                     ctx.stroke();
                     ctx.restore();
                 }
