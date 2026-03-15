@@ -69,6 +69,12 @@ a:hover {
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0;
+}
+
+.header .container,
+.footer .container,
+.main .container {
     padding: 0 20px;
 }
 
@@ -669,7 +675,6 @@ a:hover {
 
 .footer .container {
     display: flex;
-    justify-content: flex-start;
 }
 
 .footer-content {
