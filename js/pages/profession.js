@@ -235,7 +235,7 @@ export class ProfessionPage {
         const colorClass = change >= 0 ? 'positive' : 'negative';
 
         this.elements.chartRangeChange.innerHTML = `
-            <span class="${colorClass}">${change} (${sign}${percent}%)</span>
+            <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
         `;
 
         this.elements.chartRangeInfo.classList.remove('hidden');
@@ -293,12 +293,13 @@ export class ProfessionPage {
             return;
         }
 
+        const sign = data.change >= 0 ? '+' : '';
         const percentSign = data.change >= 0 ? '+' : '';
         const colorClass = data.change >= 0 ? 'positive' : 'negative';
 
         this.elements.chartChangeIndicator.innerHTML = `
             <span class="chart-change ${colorClass}">
-                ${data.change} (${percentSign}${data.percent}%)
+                ${sign}${data.change} (${percentSign}${data.percent}%)
             </span>
         `;
     }
@@ -408,6 +409,10 @@ export class ProfessionPage {
                     },
                     tooltip: {
                         callbacks: {
+                            label: (context) => {
+                                const value = context.parsed.y;
+                                return `${value} вакансий`;
+                            },
                             title: (items) => {
                                 const label = items[0]?.label;
                                 return label ? formatShortDate(label) : '';
