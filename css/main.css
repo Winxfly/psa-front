@@ -442,13 +442,12 @@ a:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 24px;
-    padding-top: 120px;
     padding-bottom: 80px;
     margin-bottom: 24px;
     box-shadow: var(--shadow-sm);
     position: relative;
-    height: 560px;
-    min-height: 560px;
+    height: 480px;
+    min-height: 480px;
 }
 
 .chart-header {
@@ -462,12 +461,10 @@ a:hover {
     height: 40px;
 }
 
-.chart-header-center {
+.chart-header-right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex: 1;
-    margin: 0 16px;
+    gap: 16px;
 }
 
 .chart-title {
@@ -500,8 +497,6 @@ a:hover {
     gap: 16px;
     align-items: center;
     white-space: nowrap;
-    background: none;
-    padding: 0;
 }
 
 .chart-range-dates {

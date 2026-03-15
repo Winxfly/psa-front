@@ -50,13 +50,11 @@ export class ProfessionPage {
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
                     <h2 class="chart-title">Динамика вакансий</h2>
-                    <div class="chart-header-center">
+                    <div class="chart-header-right">
                         <div class="chart-range-info hidden" id="chart-range-info">
                             <span class="chart-range-dates" id="chart-range-dates"></span>
                             <span class="chart-range-change" id="chart-range-change"></span>
                         </div>
-                    </div>
-                    <div class="chart-header-right">
                         <div class="chart-change-indicator" id="chart-change-indicator">
                             <!-- Индикатор изменения -->
                         </div>
@@ -225,13 +223,10 @@ export class ProfessionPage {
         // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
             this._showRangeInfo();
+        } else if (this.clickPoints.length === 1) {
+            this._showSinglePointInfo();
         } else {
             this._hideRangeInfo();
-        }
-        
-        // Показываем данные для первой точки
-        if (this.clickPoints.length === 1) {
-            this._showSinglePointInfo();
         }
     }
     
@@ -243,7 +238,7 @@ export class ProfessionPage {
         const startDate = this._formatDateRange(start.date);
         const endDate = this._formatDateRange(end.date);
 
-        this.elements.chartRangeDates.textContent = `${startDate} — ${endDate}`;
+        this.elements.chartRangeDates.textContent = `${startDate} (${start.vacancy_count} вак.) — ${endDate} (${end.vacancy_count} вак.)`;
 
         const change = end.vacancy_count - start.vacancy_count;
         const percent = start.vacancy_count !== 0 
@@ -267,8 +262,8 @@ export class ProfessionPage {
         const point = this.clickPoints[0];
         const date = this._formatDateRange(point.date);
         
-        this.elements.chartRangeDates.textContent = date;
-        this.elements.chartRangeChange.textContent = `${point.vacancy_count} вакансий`;
+        this.elements.chartRangeDates.textContent = `${date} (${point.vacancy_count} вак.)`;
+        this.elements.chartRangeChange.textContent = '';
         
         this.elements.chartRangeInfo.classList.remove('hidden');
     }
@@ -471,11 +466,8 @@ export class ProfessionPage {
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
-                const tooltip = chart.tooltip;
-                const tooltipActive = tooltip && tooltip._active && tooltip._active.length > 0;
-                const tooltipX = tooltipActive ? tooltip._active[0].element.x : null;
                 
-                // Сначала рисуем закрашенную область (чтобы была под линиями и текстом)
+                // Рисуем только закрашенную область между точками
                 if (self.clickPoints.length === 2) {
                     const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                     const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
@@ -493,109 +485,6 @@ export class ProfessionPage {
                         }
                     }
                 }
-                
-                // Собираем данные для всех выбранных точек
-                const labelData = [];
-                self.clickPoints.forEach((clickPoint) => {
-                    const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
-                    if (pointIndex === -1) return;
-                    
-                    const meta = chart.getDatasetMeta(0);
-                    if (!meta.data[pointIndex]) return;
-                    
-                    const pointX = meta.data[pointIndex].x;
-                    const pointY = meta.data[pointIndex].y;
-                    
-                    const date = self._formatDateRange(clickPoint.date);
-                    const value = clickPoint.vacancy_count;
-                    
-                    labelData.push({ pointX, pointY, date, value });
-                });
-                
-                // Сортируем по X координате
-                labelData.sort((a, b) => a.pointX - b.pointX);
-                
-                // Параметры плашки
-                const padding = 8;
-                const lineHeight = 13;
-                const lines = 2;
-                const boxHeight = lineHeight * lines + padding * 2;
-                const boxY = chartArea.top + 30; // Внутри графика, сверху (с отступом)
-                
-                // Рисуем плашки
-                labelData.forEach((data, index) => {
-                    const { pointX, pointY, date, value } = data;
-                    
-                    // Рисуем вертикальную линию
-                    ctx.save();
-                    ctx.strokeStyle = '#7aa2f7';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([5, 5]);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(pointX, chartArea.top);
-                    ctx.lineTo(pointX, chartArea.bottom);
-                    ctx.stroke();
-                    ctx.restore();
-                    
-                    // Измеряем текст
-                    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                    const dateWidth = ctx.measureText(date).width;
-                    const valueWidth = ctx.measureText(value + ' вакансий').width;
-                    const textWidth = Math.max(dateWidth, valueWidth);
-                    const boxWidth = textWidth + padding * 2;
-                    
-                    // Позиция X - центрируем по точке
-                    let boxX = pointX - boxWidth / 2;
-                    
-                    // Проверка на выход за левую границу
-                    if (boxX < chartArea.left) {
-                        boxX = chartArea.left;
-                    }
-                    
-                    // Проверка на выход за правую границу
-                    if (boxX + boxWidth > chartArea.right) {
-                        boxX = chartArea.right - boxWidth;
-                    }
-                    
-                    // Проверка на пересечение с предыдущей плашкой
-                    if (index > 0) {
-                        const prevBox = labelData[index - 1].box;
-                        const minGap = 10;
-                        if (boxX < prevBox.x + prevBox.width + minGap) {
-                            // Сдвигаем вправо
-                            boxX = prevBox.x + prevBox.width + minGap;
-                            
-                            // Проверяем правую границу после сдвига
-                            if (boxX + boxWidth > chartArea.right) {
-                                // Сдвигаем влево предыдущую
-                                const overlap = boxX + boxWidth - chartArea.right;
-                                labelData[index - 1].box.x -= overlap;
-                            }
-                        }
-                    }
-                    
-                    // Сохраняем позицию для следующей итерации
-                    data.box = { x: boxX, width: boxWidth };
-                    
-                    // Рисуем фон (рамку)
-                    ctx.save();
-                    ctx.fillStyle = 'rgba(33, 34, 52, 0.95)';
-                    ctx.strokeStyle = '#3d405f';
-                    ctx.lineWidth = 1;
-                    
-                    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-                    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-                    
-                    // Рисуем текст (белый цвет, дата сверху, значение снизу)
-                    ctx.fillStyle = '#ffffff';
-                    ctx.textAlign = 'center';
-                    const centerX = boxX + boxWidth / 2;
-                    ctx.fillText(date, centerX, boxY + padding + lineHeight);
-                    ctx.fillText(value + ' вакансий', centerX, boxY + padding + lineHeight * 2);
-                    
-                    ctx.restore();
-                });
             },
         };
     }
