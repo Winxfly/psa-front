@@ -517,7 +517,7 @@ export class ProfessionPage {
                     ctx.stroke();
                     ctx.restore();
                     
-                    // Рисуем текст с датой и значением
+                    // Рисуем текст с датой и значением (стиль как у тултипа)
                     const date = self._formatDateRange(clickPoint.date);
                     const value = clickPoint.vacancy_count;
                     
@@ -525,24 +525,24 @@ export class ProfessionPage {
                     
                     // Измеряем текст
                     const dateWidth = ctx.measureText(date).width;
-                    const valueWidth = ctx.measureText(value + ' вак.').width;
+                    const valueWidth = ctx.measureText(value + ' вакансий').width;
                     const textWidth = Math.max(dateWidth, valueWidth);
-                    const textHeight = 28; // 14px * 2 lines
-                    const padding = 6;
+                    const textHeight = 26; // 13px * 2 lines
+                    const padding = 8;
                     
                     // Определяем позицию текста
                     let textX, textAlign, boxX;
                     
                     // Проверяем правую границу - если близко, рисуем слева от линии
                     if (pointX + textWidth + padding * 2 + 5 > chartArea.right) {
-                        textX = pointX - 5;
+                        textX = pointX - padding - 5;
                         textAlign = 'right';
-                        boxX = pointX - textWidth - padding * 2 - 5;
+                        boxX = pointX - textWidth - padding * 2 - 5 - padding;
                     } else {
                         // Рисуем справа от линии
-                        textX = pointX + 5;
+                        textX = pointX + padding + 5;
                         textAlign = 'left';
-                        boxX = pointX + 5;
+                        boxX = pointX + padding + 5;
                     }
                     
                     ctx.textAlign = textAlign;
@@ -551,11 +551,11 @@ export class ProfessionPage {
                     let textY, textBaseline;
                     if (pointY < chartArea.top + textHeight + padding * 2 + 10) {
                         // Близко к верху - рисуем ниже точки
-                        textY = pointY + 15;
+                        textY = pointY + padding + 5;
                         textBaseline = 'top';
                     } else {
                         // Стандартная позиция - выше точки
-                        textY = pointY - 10;
+                        textY = pointY - padding - 5;
                         textBaseline = 'bottom';
                     }
                     
@@ -565,11 +565,11 @@ export class ProfessionPage {
                     const tooltipOverlap = tooltipX && Math.abs(textX - tooltipX) < 100;
                     if (tooltipOverlap) {
                         // Сдвигаем текст ниже или выше
-                        textY = pointY > chartArea.height / 2 ? pointY - 35 : pointY + 25;
+                        textY = pointY > chartArea.height / 2 ? pointY - 40 : pointY + 30;
                         ctx.textBaseline = pointY > chartArea.height / 2 ? 'bottom' : 'top';
                     }
                     
-                    // Рисуем фон (рамку)
+                    // Рисуем фон (рамку) как у тултипа
                     ctx.save();
                     ctx.fillStyle = 'rgba(33, 34, 52, 0.95)';
                     ctx.strokeStyle = '#3d405f';
@@ -582,10 +582,10 @@ export class ProfessionPage {
                     ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
                     ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
                     
-                    // Рисуем текст (белый цвет)
+                    // Рисуем текст (белый цвет, дата сверху, значение снизу)
                     ctx.fillStyle = '#ffffff';
                     ctx.fillText(date, textX, textY);
-                    ctx.fillText(value + ' вак.', textX, textY - 14);
+                    ctx.fillText(value + ' вакансий', textX, textY + 13);
                     
                     ctx.restore();
                 });
