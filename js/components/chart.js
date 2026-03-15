@@ -56,7 +56,7 @@ export class ChartComponent {
                 maintainAspectRatio: false,
                 layout: {
                     padding: {
-                        bottom: 10,
+                        bottom: 30,
                     },
                 },
                 interaction: {
