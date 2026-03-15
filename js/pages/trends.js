@@ -32,6 +32,9 @@ export class TrendsPage {
         
         // Рендерим пустой график сразу
         this._renderEmptyChart();
+        
+        // Принудительно показываем контейнер графика
+        this.elements.chartContainer.classList.remove('hidden');
     }
     
     /**
@@ -241,8 +244,9 @@ export class TrendsPage {
         const selectedIds = store.getSelectedProfessions();
         
         if (selectedIds.length === 0) {
-            this.elements.empty.classList.remove('hidden');
-            this.elements.chartContainer.classList.add('hidden');
+            this.elements.empty.classList.add('hidden');
+            this.elements.chartContainer.classList.remove('hidden');
+            this._renderEmptyChart();
             return;
         }
         
@@ -270,9 +274,8 @@ export class TrendsPage {
         const selectedIds = store.getSelectedProfessions();
         
         if (selectedIds.length === 0) {
-            this.chart.destroy();
-            this.elements.empty.classList.remove('hidden');
-            this.elements.chartContainer.classList.add('hidden');
+            // Не скрываем график, просто рендерим пустой
+            this._renderEmptyChart();
             return;
         }
         

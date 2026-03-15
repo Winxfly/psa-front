@@ -254,6 +254,8 @@ a:hover {
     margin-top: 0;
     padding-top: 0;
     border-top: none;
+    position: relative;
+    z-index: 50;
 }
 
 .profession-item {
@@ -266,6 +268,8 @@ a:hover {
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: border-color 0.15s, background-color 0.15s;
+    position: relative;
+    z-index: 50;
 }
 
 .profession-item:hover {
@@ -430,6 +434,7 @@ a:hover {
     box-shadow: var(--shadow-sm);
     position: relative;
     height: 400px;
+    min-height: 400px;
 }
 
 .chart-title {
@@ -442,12 +447,14 @@ a:hover {
 .chart-controls {
     display: flex;
     gap: 8px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 24px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
     justify-content: center;
-    padding-bottom: 20px;
+    padding-bottom: 24px;
     border-bottom: 1px solid var(--border-color);
+    position: relative;
+    z-index: 100;
 }
 
 .chart-btn {

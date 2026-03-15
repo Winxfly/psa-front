@@ -4,7 +4,7 @@
 
 import { api } from '../api.js';
 import { ChartComponent } from '../components/chart.js';
-import { escapeHtml, formatDate } from '../utils/helpers.js';
+import { escapeHtml, formatDate, formatShortDate } from '../utils/helpers.js';
 
 export class ProfessionPage {
     constructor(container) {
@@ -187,6 +187,14 @@ export class ProfessionPage {
                 plugins: {
                     legend: {
                         display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => {
+                                const label = items[0]?.label;
+                                return label ? formatShortDate(label) : '';
+                            },
+                        },
                     },
                 },
             },
