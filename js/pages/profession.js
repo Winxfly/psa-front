@@ -228,6 +228,11 @@ export class ProfessionPage {
         } else {
             this._hideRangeInfo();
         }
+        
+        // Показываем данные для первой точки
+        if (this.clickPoints.length === 1) {
+            this._showSinglePointInfo();
+        }
     }
     
     /**
@@ -252,6 +257,19 @@ export class ProfessionPage {
             <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
         `;
 
+        this.elements.chartRangeInfo.classList.remove('hidden');
+    }
+    
+    /**
+     * Показать информацию для одной точки
+     */
+    _showSinglePointInfo() {
+        const point = this.clickPoints[0];
+        const date = this._formatDateRange(point.date);
+        
+        this.elements.chartRangeDates.textContent = date;
+        this.elements.chartRangeChange.textContent = `${point.vacancy_count} вакансий`;
+        
         this.elements.chartRangeInfo.classList.remove('hidden');
     }
     
@@ -449,72 +467,70 @@ export class ProfessionPage {
             id: 'rangeHighlight',
             afterDatasetsDraw: (chart) => {
                 // Проверяем что это наш график (с filteredTrend)
-                if (!self.filteredTrend || self.clickPoints.length !== 2) return;
+                if (!self.filteredTrend || self.clickPoints.length === 0) return;
                 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
                 
-                // Находим индексы точек
-                const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
-                const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
+                // Рисуем точки которые выбраны
+                self.clickPoints.forEach((clickPoint, index) => {
+                    const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
+                    if (pointIndex === -1) return;
+                    
+                    const meta = chart.getDatasetMeta(0);
+                    if (!meta.data[pointIndex]) return;
+                    
+                    const pointX = meta.data[pointIndex].x;
+                    const pointY = meta.data[pointIndex].y;
+                    
+                    // Рисуем вертикальную линию
+                    ctx.save();
+                    ctx.strokeStyle = '#7aa2f7';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(pointX, chartArea.top);
+                    ctx.lineTo(pointX, chartArea.bottom);
+                    ctx.stroke();
+                    
+                    // Рисуем текст с датой и значением (справа от линии)
+                    const date = self._formatDateRange(clickPoint.date);
+                    const value = clickPoint.vacancy_count;
+                    
+                    ctx.fillStyle = '#e0e0e0';
+                    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    
+                    const textX = pointX + 5;
+                    const textY = pointY - 10;
+                    
+                    ctx.fillText(date, textX, textY);
+                    ctx.fillText(value + ' вак.', textX, textY - 14);
+                    
+                    ctx.restore();
+                });
                 
-                if (startIndex === -1 || endIndex === -1) return;
-                
-                // Получаем X координаты
-                const meta = chart.getDatasetMeta(0);
-                if (!meta.data[startIndex] || !meta.data[endIndex]) return;
-                
-                const startX = meta.data[startIndex].x;
-                const endX = meta.data[endIndex].x;
-                const startY = meta.data[startIndex].y;
-                const endY = meta.data[endIndex].y;
-                
-                // Рисуем закрашенную область
-                ctx.save();
-                ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
-                ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
-                
-                // Рисуем вертикальные линии
-                ctx.strokeStyle = '#7aa2f7';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                
-                ctx.beginPath();
-                ctx.moveTo(startX, chartArea.top);
-                ctx.lineTo(startX, chartArea.bottom);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(endX, chartArea.top);
-                ctx.lineTo(endX, chartArea.bottom);
-                ctx.stroke();
-                
-                // Рисуем текст с датой и значением для первой точки (справа от линии)
-                const startDate = self._formatDateRange(self.clickPoints[0].date);
-                const startValue = self.clickPoints[0].vacancy_count;
-                
-                ctx.fillStyle = '#e0e0e0';
-                ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'bottom';
-                
-                const startXText = startX + 5;
-                const startXTextY = startY - 10;
-                
-                ctx.fillText(startDate, startXText, startXTextY);
-                ctx.fillText(startValue + ' вак.', startXText, startXTextY - 14);
-                
-                // Рисуем текст с датой и значением для второй точки (справа от линии)
-                const endDate = self._formatDateRange(self.clickPoints[1].date);
-                const endValue = self.clickPoints[1].vacancy_count;
-                
-                const endXText = endX + 5;
-                const endXTextY = endY - 10;
-                
-                ctx.fillText(endDate, endXText, endXTextY);
-                ctx.fillText(endValue + ' вак.', endXText, endXTextY - 14);
-                
-                ctx.restore();
+                // Если выбраны 2 точки — рисуем закрашенную область между ними
+                if (self.clickPoints.length === 2) {
+                    const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
+                    const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
+                    
+                    if (startIndex === -1 || endIndex === -1) return;
+                    
+                    const meta = chart.getDatasetMeta(0);
+                    if (!meta.data[startIndex] || !meta.data[endIndex]) return;
+                    
+                    const startX = meta.data[startIndex].x;
+                    const endX = meta.data[endIndex].x;
+                    
+                    // Рисуем закрашенную область
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
+                    ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
+                    ctx.restore();
+                }
             },
         };
     }
