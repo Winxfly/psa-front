@@ -113,7 +113,6 @@ a:hover {
     justify-content: flex-start;
     align-items: center;
     gap: 48px;
-    padding-left: 20px;
 }
 
 .logo-section {
@@ -671,7 +670,7 @@ a:hover {
 
 .footer .container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .footer-content {
@@ -679,7 +678,6 @@ a:hover {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1200px;
     gap: 20px;
 }
 
@@ -748,27 +746,30 @@ a:hover {
         flex-direction: column;
         gap: 16px;
         justify-content: center;
-        padding-left: 0;
     }
-    
+
     .logo {
         font-size: 1.5rem;
     }
-    
+
     .professions-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .profession-meta {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     .chart-container {
         height: 300px;
         padding: 16px;
     }
-    
+
+    .footer .container {
+        justify-content: center;
+    }
+
     .footer-content {
         flex-direction: column;
         text-align: center;
