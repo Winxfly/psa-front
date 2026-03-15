@@ -19,7 +19,9 @@ export class Header {
         
         this.container.innerHTML = `
             <div class="logo-section">
-                <h1 class="logo">PSA</h1>
+                <a href="#/" class="logo-link">
+                    <h1 class="logo">PSA</h1>
+                </a>
                 <span class="logo-sub">Professional Skills Analyzer</span>
             </div>
             <nav class="nav">
