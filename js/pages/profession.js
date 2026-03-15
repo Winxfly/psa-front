@@ -549,14 +549,10 @@ export class ProfessionPage {
                     
                     // Проверяем верхнюю/нижнюю границу
                     let textY, textBaseline;
-                    if (pointY < chartArea.top + textHeight + padding * 2) {
+                    if (pointY < chartArea.top + textHeight + padding * 2 + 10) {
                         // Близко к верху - рисуем ниже точки
-                        textY = pointY + 20;
+                        textY = pointY + 15;
                         textBaseline = 'top';
-                    } else if (pointY > chartArea.bottom - padding * 2) {
-                        // Близко к низу - рисуем выше точки
-                        textY = pointY - 10;
-                        textBaseline = 'bottom';
                     } else {
                         // Стандартная позиция - выше точки
                         textY = pointY - 10;
@@ -586,8 +582,8 @@ export class ProfessionPage {
                     ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
                     ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
                     
-                    // Рисуем текст
-                    ctx.fillStyle = '#e0e0e0';
+                    // Рисуем текст (белый цвет)
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillText(date, textX, textY);
                     ctx.fillText(value + ' вак.', textX, textY - 14);
                     
