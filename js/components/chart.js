@@ -54,6 +54,11 @@ export class ChartComponent {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 10,
+                    },
+                },
                 interaction: {
                     mode: 'index',
                     intersect: false,

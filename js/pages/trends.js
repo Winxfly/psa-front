@@ -52,9 +52,9 @@ export class TrendsPage {
                     <button class="chart-btn" data-range="year">Год</button>
                     <button class="chart-btn active" data-range="all">Всё время</button>
                 </div>
-                <div class="chart-limit-warning hidden" id="chart-limit-warning">
-                    Максимум 5 профессий для сравнения
-                </div>
+            </div>
+            <div class="chart-limit-warning hidden" id="chart-limit-warning">
+                Максимум 5 профессий для сравнения
             </div>
             <div class="profession-list" id="profession-list">
                 <!-- Список профессий с чекбоксами -->
