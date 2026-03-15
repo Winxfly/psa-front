@@ -144,9 +144,13 @@ export class TrendsPage {
                     tooltip: { enabled: false },
                 },
                 scales: {
+                    x: {
+                        ticks: { display: false },
+                        grid: { display: false },
+                    },
                     y: {
                         ticks: { display: false },
-                        grid: { display: true },
+                        grid: { display: false },
                     },
                 },
             },
@@ -292,15 +296,23 @@ export class TrendsPage {
             const trendData = store.getTrendData(id) || [];
             
             trendData.forEach(point => {
-                allDates.add(point.date);
+                // Нормализуем дату к началу дня (без времени)
+                const normalizedDate = new Date(point.date);
+                normalizedDate.setHours(0, 0, 0, 0);
+                allDates.add(normalizedDate.toISOString());
             });
             
             datasets.push({
                 label: profession?.name || 'Unknown',
-                data: trendData.map(point => ({
-                    x: point.date,
-                    y: point.vacancy_count,
-                })),
+                data: trendData.map(point => {
+                    // Нормализуем дату к началу дня
+                    const normalizedDate = new Date(point.date);
+                    normalizedDate.setHours(0, 0, 0, 0);
+                    return {
+                        x: normalizedDate.toISOString(),
+                        y: point.vacancy_count,
+                    };
+                }),
                 color: colors[index],
             });
         });
