@@ -50,6 +50,10 @@ export class ProfessionPage {
                         <!-- Индикатор изменения -->
                     </div>
                 </div>
+                <div class="chart-range-info hidden" id="chart-range-info">
+                    <div class="chart-range-dates" id="chart-range-dates"></div>
+                    <div class="chart-range-change" id="chart-range-change"></div>
+                </div>
                 <canvas id="chart-canvas"></canvas>
                 <div class="chart-controls" id="chart-controls">
                     <button class="chart-btn" data-range="month">Месяц</button>
@@ -57,10 +61,6 @@ export class ProfessionPage {
                     <button class="chart-btn" data-range="6months">6 мес</button>
                     <button class="chart-btn" data-range="year">Год</button>
                     <button class="chart-btn active" data-range="all">Всё время</button>
-                </div>
-                <div class="chart-range-info hidden" id="chart-range-info">
-                    <div class="chart-range-dates" id="chart-range-dates"></div>
-                    <div class="chart-range-change" id="chart-range-change"></div>
                 </div>
             </div>
             
@@ -443,22 +443,6 @@ export class ProfessionPage {
                 ctx.save();
                 ctx.fillStyle = 'rgba(122, 162, 247, 0.15)';
                 ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
-                
-                // Рисуем вертикальные линии
-                ctx.strokeStyle = '#7aa2f7';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                
-                ctx.beginPath();
-                ctx.moveTo(startX, chartArea.top);
-                ctx.lineTo(startX, chartArea.bottom);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(endX, chartArea.top);
-                ctx.lineTo(endX, chartArea.bottom);
-                ctx.stroke();
-                
                 ctx.restore();
             },
         };

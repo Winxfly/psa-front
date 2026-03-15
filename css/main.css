@@ -454,7 +454,7 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 .chart-title {
@@ -484,11 +484,7 @@ a:hover {
 }
 
 .chart-range-info {
-    margin-top: 16px;
-    padding: 12px 16px;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
     text-align: center;
 }
 
@@ -496,7 +492,7 @@ a:hover {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .chart-range-change {
