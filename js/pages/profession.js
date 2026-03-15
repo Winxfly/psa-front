@@ -520,7 +520,7 @@ export class ProfessionPage {
                 const lineHeight = 13;
                 const lines = 2;
                 const boxHeight = lineHeight * lines + padding * 2;
-                const boxY = chartArea.top - boxHeight - 5; // Над графиком
+                const boxY = chartArea.top + 30; // Внутри графика, сверху (с отступом)
                 
                 // Рисуем плашки
                 labelData.forEach((data, index) => {
