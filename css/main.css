@@ -211,27 +211,29 @@ a:hover {
    ============================================ */
 .professions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
 }
 
 .profession-card {
     display: block;
-    padding: 20px 24px;
+    padding: 16px 20px;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     cursor: pointer;
     text-decoration: none;
     color: var(--text-primary);
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s, background-color 0.15s;
     box-shadow: var(--shadow-sm);
 }
 
 .profession-card:hover {
     border-color: var(--accent-primary);
+    background-color: var(--bg-hover);
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+    text-decoration: none;
 }
 
 .profession-card:active {
@@ -239,7 +241,7 @@ a:hover {
 }
 
 .profession-card-title {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -673,6 +675,18 @@ a:hover {
 /* ============================================
    Responsive
    ============================================ */
+@media (max-width: 1200px) {
+    .professions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .professions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .header .container {
         flex-direction: column;
