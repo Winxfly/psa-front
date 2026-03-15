@@ -148,8 +148,11 @@ export class ProfessionPage {
         console.log('[ProfessionPage] Canvas element:', canvas);
         
         if (canvas) {
+            // Используем стрелочную функцию для сохранения this
             canvas.addEventListener('click', (e) => {
                 console.log('[ProfessionPage] Canvas clicked!', e);
+                console.log('[ProfessionPage] this:', this);
+                console.log('[ProfessionPage] filteredTrend:', this.filteredTrend);
                 this._handleChartClick(e);
             });
         } else {
