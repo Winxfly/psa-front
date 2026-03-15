@@ -45,14 +45,16 @@ export class ProfessionPage {
             
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
-                    <h2 class="chart-title">Динамика вакансий</h2>
+                    <div class="chart-header-left">
+                        <h2 class="chart-title">Динамика вакансий</h2>
+                        <div class="chart-range-info hidden" id="chart-range-info">
+                            <span class="chart-range-dates" id="chart-range-dates"></span>
+                            <span class="chart-range-change" id="chart-range-change"></span>
+                        </div>
+                    </div>
                     <div class="chart-header-right">
                         <div class="chart-change-indicator" id="chart-change-indicator">
                             <!-- Индикатор изменения -->
-                        </div>
-                        <div class="chart-range-info hidden" id="chart-range-info">
-                            <div class="chart-range-dates" id="chart-range-dates"></div>
-                            <div class="chart-range-change" id="chart-range-change"></div>
                         </div>
                     </div>
                 </div>
