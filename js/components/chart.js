@@ -44,6 +44,29 @@ export class ChartComponent {
             this.chart.destroy();
         }
         
+        // Плагин для вертикальной линии (crosshair)
+        const crosshairPlugin = {
+            id: 'crosshair',
+            beforeDraw: (chart) => {
+                if (chart.tooltip._active && chart.tooltip._active.length) {
+                    const ctx = chart.ctx;
+                    const activePoint = chart.tooltip._active[0];
+                    const { x, y } = activePoint.element;
+                    const { top, bottom } = chart.chartArea;
+                    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x, top);
+                    ctx.lineTo(x, bottom);
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = '#7aa2f7';
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            },
+        };
+        
         // Создать новый график
         this.chart = new Chart(ctx, {
             type: 'line',
@@ -120,6 +143,7 @@ export class ChartComponent {
                 },
                 ...options,
             },
+            plugins: [crosshairPlugin],
         });
     }
     
