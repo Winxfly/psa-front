@@ -219,12 +219,8 @@ export class ProfessionPage {
 
         console.log('[Click] clickPoints after:', this.clickPoints);
 
-        // Обновляем график для перерисовки плагина
-        if (this.chart && this.chart.chart) {
-            // Принудительная перерисовка
-            this.chart.chart.update('none');
-            this.chart.chart.draw();
-        }
+        // Обновляем график для перерисовки плагина - пересоздаём
+        this._renderChart();
 
         // Показываем/скрываем данные
         if (this.clickPoints.length === 2) {
