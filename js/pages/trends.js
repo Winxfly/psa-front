@@ -56,6 +56,10 @@ export class TrendsPage {
                     <button class="chart-btn active" data-range="all">Всё время</button>
                 </div>
             </div>
+            <div class="trends-header">
+                <span class="selected-count" id="selected-count">Выбрано: 0</span>
+                <button class="btn-reset" id="btn-reset">Сбросить</button>
+            </div>
             <div class="profession-list" id="profession-list">
                 <!-- Список профессий с чекбоксами -->
             </div>
@@ -80,6 +84,8 @@ export class TrendsPage {
             loading: this.container.querySelector('#trends-loading'),
             error: this.container.querySelector('#trends-error'),
             empty: this.container.querySelector('#trends-empty'),
+            selectedCount: this.container.querySelector('#selected-count'),
+            resetButton: this.container.querySelector('#btn-reset'),
         };
     }
     
@@ -107,6 +113,11 @@ export class TrendsPage {
             if (e.target.classList.contains('chart-btn')) {
                 this._setTimeRange(e.target.dataset.range);
             }
+        });
+        
+        // Кнопка сброса
+        this.elements.resetButton.addEventListener('click', () => {
+            this._resetSelection();
         });
         
         // Подписка на изменения store
@@ -161,6 +172,15 @@ export class TrendsPage {
     }
     
     /**
+     * Сбросить все выбранные профессии
+     */
+    _resetSelection() {
+        store.clearSelected();
+        this._renderProfessionList();
+        this._renderEmptyChart();
+    }
+    
+    /**
      * Загрузка профессий
      */
     async _loadProfessions() {
@@ -173,6 +193,11 @@ export class TrendsPage {
     _renderProfessionList() {
         this.elements.professionList.innerHTML = '';
         
+        const selectedCount = store.getSelectedCount();
+        if (this.elements.selectedCount) {
+            this.elements.selectedCount.textContent = `Выбрано: ${selectedCount}`;
+        }
+        
         this.professions.forEach(profession => {
             const isSelected = store.isSelected(profession.id);
             
@@ -180,20 +205,20 @@ export class TrendsPage {
             item.className = `profession-item ${isSelected ? 'selected' : ''}`;
             item.dataset.id = profession.id;
             
+            const maxReached = selectedCount >= store.getMaxSelected() && !isSelected;
+            
             item.innerHTML = `
                 <input 
                     type="checkbox" 
                     class="profession-checkbox" 
                     ${isSelected ? 'checked' : ''}
-                    ${store.getSelectedCount() >= store.getMaxSelected() && !isSelected ? 'disabled' : ''}
+                    ${maxReached ? 'disabled' : ''}
                 >
                 <span class="profession-name">${escapeHtml(profession.name)}</span>
             `;
             
             this.elements.professionList.appendChild(item);
         });
-        
-        this._updateCheckboxStates();
     }
     
     /**
@@ -377,26 +402,6 @@ export class TrendsPage {
         });
         
         this._updateChart();
-    }
-    
-    /**
-     * Обновление состояний чекбоксов
-     */
-    _updateCheckboxStates() {
-        const selectedCount = store.getSelectedCount();
-        const maxSelected = store.getMaxSelected();
-        
-        const checkboxes = this.elements.professionList.querySelectorAll('.profession-checkbox');
-        checkboxes.forEach(checkbox => {
-            const item = checkbox.closest('.profession-item');
-            const isSelected = item.classList.contains('selected');
-            
-            if (!isSelected && selectedCount >= maxSelected) {
-                checkbox.disabled = true;
-            } else {
-                checkbox.disabled = false;
-            }
-        });
     }
     
     /**
