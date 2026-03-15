@@ -115,6 +115,8 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 0 20px;
 }
 
@@ -675,6 +677,8 @@ a:hover {
 
 .footer .container {
     display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 0 20px;
 }
 

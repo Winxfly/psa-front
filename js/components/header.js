@@ -16,23 +16,25 @@ export class Header {
      */
     render(currentRoute = '/') {
         this.currentRoute = currentRoute;
-        
+
         this.container.innerHTML = `
-            <div class="logo-section">
-                <a href="#/" class="logo-link">
-                    <h1 class="logo">PSA</h1>
-                </a>
+            <div class="container">
+                <div class="logo-section">
+                    <a href="#/" class="logo-link">
+                        <h1 class="logo">PSA</h1>
+                    </a>
+                </div>
+                <nav class="nav">
+                    <a href="#/" class="nav-btn ${currentRoute === '/' ? 'active' : ''}">
+                        Профессии
+                    </a>
+                    <a href="#/trends" class="nav-btn ${currentRoute === '/trends' ? 'active' : ''}">
+                        Тренды
+                    </a>
+                </nav>
             </div>
-            <nav class="nav">
-                <a href="#/" class="nav-btn ${currentRoute === '/' ? 'active' : ''}">
-                    Профессии
-                </a>
-                <a href="#/trends" class="nav-btn ${currentRoute === '/trends' ? 'active' : ''}">
-                    Тренды
-                </a>
-            </nav>
         `;
-        
+
         this._attachListeners();
     }
     
