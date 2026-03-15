@@ -22,7 +22,6 @@ export class Header {
                 <a href="#/" class="logo-link">
                     <h1 class="logo">PSA</h1>
                 </a>
-                <span class="logo-sub">Professional Skills Analyzer</span>
             </div>
             <nav class="nav">
                 <a href="#/" class="nav-btn ${currentRoute === '/' ? 'active' : ''}">
