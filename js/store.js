@@ -40,11 +40,14 @@ class Store {
      * Сохранение выбранных профессий в localStorage
      */
     _saveSelectedProfessions() {
+        // Отключаем сохранение в localStorage
+        /*
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state.selectedProfessions));
         } catch (e) {
             console.error('[Store] Error saving selected professions:', e);
         }
+        */
     }
     
     /**

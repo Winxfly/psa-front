@@ -22,6 +22,9 @@ export class TrendsPage {
      * Инициализация страницы
      */
     async init() {
+        // Сбрасываем выбранные профессии при входе на страницу трендов
+        store.clearSelected();
+        
         this._render();
         this._cacheElements();
         this.chart = new ChartComponent(this.elements.chartContainer);
