@@ -5,7 +5,9 @@
 import { api } from '../api.js';
 import { ChartComponent } from '../components/chart.js';
 import { escapeHtml, formatDate, formatShortDate } from '../utils/helpers.js';
-import { Chart } from 'chart.js';
+
+// Chart.js доступен глобально через CDN
+const Chart = window.Chart;
 
 export class ProfessionPage {
     constructor(container) {
