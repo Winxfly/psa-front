@@ -20,9 +20,10 @@ export class ChartComponent {
      * @param {Object} config - Конфигурация графика
      * @param {Array} config.datasets - Наборы данных
      * @param {Array} config.labels - Метки по оси X
+     * @param {Array} config.plugins - Плагины
      * @param {Object} config.options - Дополнительные опции
      */
-    render({ datasets, labels, options = {} }) {
+    render({ datasets, labels, plugins = [], options = {} }) {
         const ctx = this._getOrCreateCanvas();
         
         const chartColors = getChartColors(datasets.length);
@@ -76,6 +77,7 @@ export class ChartComponent {
                 labels: labels,
                 datasets: chartDatasets,
             },
+            plugins: plugins || [],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
