@@ -49,15 +49,13 @@ export class ProfessionPage {
             
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
-                    <h2 class="chart-title">Динамика вакансий</h2>
-                    <div class="chart-header-right">
-                        <div class="chart-range-info hidden" id="chart-range-info">
-                            <span class="chart-range-dates" id="chart-range-dates"></span>
-                            <span class="chart-range-change" id="chart-range-change"></span>
-                        </div>
-                        <div class="chart-change-indicator" id="chart-change-indicator">
-                            <!-- Индикатор изменения -->
-                        </div>
+                    <div style="width: 120px;"></div>
+                    <div class="chart-range-info hidden" id="chart-range-info">
+                        <span class="chart-range-dates" id="chart-range-dates"></span>
+                        <span class="chart-range-change" id="chart-range-change"></span>
+                    </div>
+                    <div class="chart-change-indicator" id="chart-change-indicator">
+                        <!-- Индикатор изменения -->
                     </div>
                 </div>
                 <canvas id="chart-canvas"></canvas>
@@ -467,7 +465,30 @@ export class ProfessionPage {
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
                 
-                // Рисуем только закрашенную область между точками
+                // Рисуем линии и закрашенную область для каждой точки
+                self.clickPoints.forEach((clickPoint) => {
+                    const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
+                    if (pointIndex === -1) return;
+                    
+                    const meta = chart.getDatasetMeta(0);
+                    if (!meta.data[pointIndex]) return;
+                    
+                    const pointX = meta.data[pointIndex].x;
+                    
+                    // Рисуем вертикальную линию
+                    ctx.save();
+                    ctx.strokeStyle = '#7aa2f7';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(pointX, chartArea.top);
+                    ctx.lineTo(pointX, chartArea.bottom);
+                    ctx.stroke();
+                    ctx.restore();
+                });
+                
+                // Рисуем закрашенную область между точками
                 if (self.clickPoints.length === 2) {
                     const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                     const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
