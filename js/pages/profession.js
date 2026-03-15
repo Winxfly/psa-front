@@ -167,20 +167,30 @@ export class ProfessionPage {
         }
 
         const rect = this.elements.chartCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const chartWidth = this.chart.chart?.chartArea?.width || 0;
-        const clickRatio = x / chartWidth;
+        const clickX = e.clientX - rect.left;
+        
+        // Находим ближайшую точку по X координате
+        const meta = this.chart.chart.getDatasetMeta(0);
+        let closestPoint = null;
+        let closestDistance = Infinity;
+        
+        meta.data.forEach((element, index) => {
+            const pointX = element.x;
+            const distance = Math.abs(pointX - clickX);
+            
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestPoint = this.filteredTrend[index];
+            }
+        });
 
-        // Находим ближайшую точку данных
-        const pointIndex = Math.round(clickRatio * (this.filteredTrend.length - 1));
-        const clampedIndex = Math.max(0, Math.min(this.filteredTrend.length - 1, pointIndex));
-        const clickedPoint = this.filteredTrend[clampedIndex];
-
-        console.log('[Click] pointIndex:', pointIndex, 'clampedIndex:', clampedIndex);
-        console.log('[Click] clickedPoint:', clickedPoint);
+        console.log('[Click] clickX:', clickX);
+        console.log('[Click] closestPoint:', closestPoint);
         console.log('[Click] all filteredTrend:', this.filteredTrend.map((p, i) => `${i}: ${p.date}`));
 
-        if (!clickedPoint) return;
+        if (!closestPoint) return;
+
+        const clickedPoint = closestPoint;
 
         // Логика кликов:
         // 0 точек -> 1 точка (первый клик)
