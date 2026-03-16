@@ -494,10 +494,12 @@ a:hover {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-sm);
     margin-bottom: 16px;
+    min-height: 20px;
+    visibility: hidden;
 }
 
-.chart-range-info.hidden {
-    display: none;
+.chart-range-info:not(.empty) {
+    visibility: visible;
 }
 
 .chart-range-dates {

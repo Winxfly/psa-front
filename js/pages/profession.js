@@ -55,7 +55,7 @@ export class ProfessionPage {
                             <!-- Индикатор изменения -->
                         </div>
                     </div>
-                    <div class="chart-range-info hidden" id="chart-range-info">
+                    <div class="chart-range-info" id="chart-range-info">
                         <span class="chart-range-dates" id="chart-range-dates"></span>
                         <span class="chart-range-change" id="chart-range-change"></span>
                     </div>
@@ -254,27 +254,29 @@ export class ProfessionPage {
             <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
         `;
 
-        this.elements.chartRangeInfo.classList.remove('hidden');
+        this.elements.chartRangeInfo.classList.remove('empty');
     }
-    
+
     /**
      * Показать информацию для одной точки
      */
     _showSinglePointInfo() {
         const point = this.clickPoints[0];
         const date = this._formatDateRange(point.date);
-        
+
         this.elements.chartRangeDates.textContent = `${date} (${point.vacancy_count} вак.)`;
         this.elements.chartRangeChange.textContent = '';
-        
-        this.elements.chartRangeInfo.classList.remove('hidden');
+
+        this.elements.chartRangeInfo.classList.remove('empty');
     }
-    
+
     /**
      * Скрыть информацию о диапазоне
      */
     _hideRangeInfo() {
-        this.elements.chartRangeInfo.classList.add('hidden');
+        this.elements.chartRangeInfo.classList.add('empty');
+        this.elements.chartRangeDates.textContent = '';
+        this.elements.chartRangeChange.textContent = '';
     }
     
     /**
@@ -448,9 +450,12 @@ export class ProfessionPage {
                 },
             },
         });
-        
+
         // Рендерим индикатор изменения
         this._renderChangeIndicator();
+        
+        // Скрываем блок диапазона при инициализации
+        this._hideRangeInfo();
     }
     
     /**
