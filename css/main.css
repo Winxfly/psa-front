@@ -442,7 +442,7 @@ a:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 24px;
-    padding-bottom: 24px;
+    padding-bottom: 16px;
     margin-bottom: 24px;
     box-shadow: var(--shadow-sm);
 }
@@ -562,13 +562,6 @@ a:hover {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-left: 24px;
-    margin-right: 24px;
-    z-index: 10;
 }
 
 .chart-btn {
