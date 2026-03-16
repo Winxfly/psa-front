@@ -464,52 +464,60 @@ export class ProfessionPage {
      */
     _createRangeHighlightPlugin() {
         const self = this;
-        
+
         return {
             id: 'rangeHighlight',
             afterDatasetsDraw: (chart) => {
                 // Проверяем что это наш график (с filteredTrend)
                 if (!self.filteredTrend || self.clickPoints.length === 0) return;
-                
+
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
-                
+
                 // Рисуем линии и закрашенную область для каждой точки
                 self.clickPoints.forEach((clickPoint) => {
                     const pointIndex = self.filteredTrend.findIndex(p => p.date === clickPoint.date);
                     if (pointIndex === -1) return;
-                    
+
                     const meta = chart.getDatasetMeta(0);
                     if (!meta.data[pointIndex]) return;
-                    
+
                     const pointX = meta.data[pointIndex].x;
-                    
+
                     // Рисуем вертикальную линию
                     ctx.save();
                     ctx.strokeStyle = '#7aa2f7';
                     ctx.lineWidth = 2;
                     ctx.setLineDash([5, 5]);
-                    
+
                     ctx.beginPath();
                     ctx.moveTo(pointX, chartArea.top);
                     ctx.lineTo(pointX, chartArea.bottom);
                     ctx.stroke();
                     ctx.restore();
                 });
-                
+
                 // Рисуем закрашенную область между точками
                 if (self.clickPoints.length === 2) {
                     const startIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[0].date);
                     const endIndex = self.filteredTrend.findIndex(p => p.date === self.clickPoints[1].date);
-                    
+
                     if (startIndex !== -1 && endIndex !== -1) {
                         const meta = chart.getDatasetMeta(0);
                         if (meta.data[startIndex] && meta.data[endIndex]) {
                             const startX = meta.data[startIndex].x;
                             const endX = meta.data[endIndex].x;
-                            
+
+                            // Определяем цвет по изменению
+                            const startValue = self.clickPoints[0].vacancy_count;
+                            const endValue = self.clickPoints[1].vacancy_count;
+                            const isPositive = endValue >= startValue;
+                            const color = isPositive
+                                ? 'rgba(158, 206, 106, 0.1)'  // --accent-success с прозрачностью
+                                : 'rgba(247, 118, 142, 0.1)'; // --accent-error с прозрачностью
+
                             ctx.save();
-                            ctx.fillStyle = 'rgba(122, 162, 247, 0.1)';
+                            ctx.fillStyle = color;
                             ctx.fillRect(startX, chartArea.top, endX - startX, chartArea.bottom - chartArea.top);
                             ctx.restore();
                         }
