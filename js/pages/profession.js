@@ -51,13 +51,13 @@ export class ProfessionPage {
                 <div class="chart-header">
                     <div class="chart-header-top">
                         <h2 class="chart-title">Динамика вакансий</h2>
+                        <div class="chart-range-info" id="chart-range-info">
+                            <span class="chart-range-dates" id="chart-range-dates"></span>
+                            <span class="chart-range-change" id="chart-range-change"></span>
+                        </div>
                         <div class="chart-change-indicator" id="chart-change-indicator">
                             <!-- Индикатор изменения -->
                         </div>
-                    </div>
-                    <div class="chart-range-info" id="chart-range-info">
-                        <span class="chart-range-dates" id="chart-range-dates"></span>
-                        <span class="chart-range-change" id="chart-range-change"></span>
                     </div>
                 </div>
                 <div style="height: 400px;">
@@ -254,7 +254,7 @@ export class ProfessionPage {
             <span class="${colorClass}">${sign}${change} (${sign}${percent}%)</span>
         `;
 
-        this.elements.chartRangeInfo.classList.remove('empty');
+        this.elements.chartRangeInfo.classList.remove('hidden');
     }
 
     /**
@@ -267,14 +267,14 @@ export class ProfessionPage {
         this.elements.chartRangeDates.textContent = `${date} (${point.vacancy_count} вак.)`;
         this.elements.chartRangeChange.textContent = '';
 
-        this.elements.chartRangeInfo.classList.remove('empty');
+        this.elements.chartRangeInfo.classList.remove('hidden');
     }
 
     /**
      * Скрыть информацию о диапазоне
      */
     _hideRangeInfo() {
-        this.elements.chartRangeInfo.classList.add('empty');
+        this.elements.chartRangeInfo.classList.add('hidden');
         this.elements.chartRangeDates.textContent = '';
         this.elements.chartRangeChange.textContent = '';
     }

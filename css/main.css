@@ -458,6 +458,20 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+}
+
+.chart-range-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.chart-range-info.hidden {
+    visibility: hidden;
 }
 
 .chart-title {
@@ -483,23 +497,6 @@ a:hover {
 
 .chart-change.negative {
     color: var(--accent-error);
-}
-
-.chart-range-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    white-space: nowrap;
-    padding: 12px 16px;
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    margin-bottom: 16px;
-    min-height: 20px;
-    visibility: hidden;
-}
-
-.chart-range-info:not(.empty) {
-    visibility: visible;
 }
 
 .chart-range-dates {
