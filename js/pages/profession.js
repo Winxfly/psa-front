@@ -49,16 +49,20 @@ export class ProfessionPage {
             
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
-                    <div style="width: 120px;"></div>
+                    <div class="chart-header-top">
+                        <h2 class="chart-title">Динамика вакансий</h2>
+                        <div class="chart-change-indicator" id="chart-change-indicator">
+                            <!-- Индикатор изменения -->
+                        </div>
+                    </div>
                     <div class="chart-range-info hidden" id="chart-range-info">
                         <span class="chart-range-dates" id="chart-range-dates"></span>
                         <span class="chart-range-change" id="chart-range-change"></span>
                     </div>
-                    <div class="chart-change-indicator" id="chart-change-indicator">
-                        <!-- Индикатор изменения -->
-                    </div>
                 </div>
-                <canvas id="chart-canvas"></canvas>
+                <div style="height: 400px;">
+                    <canvas id="chart-canvas"></canvas>
+                </div>
                 <div class="chart-controls" id="chart-controls">
                     <button class="chart-btn" data-range="month">Месяц</button>
                     <button class="chart-btn" data-range="3months">3 мес</button>

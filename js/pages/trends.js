@@ -47,13 +47,17 @@ export class TrendsPage {
         this.container.innerHTML = `
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
-                    <h2 class="chart-title">Динамика вакансий</h2>
-                    <div class="chart-actions">
-                        <span class="selection-count" id="selection-count">0/5</span>
-                        <button class="btn-reset-small" id="btn-reset">Сбросить</button>
+                    <div class="chart-header-top">
+                        <h2 class="chart-title">Динамика вакансий</h2>
+                        <div class="chart-actions">
+                            <span class="selection-count" id="selection-count">0/5</span>
+                            <button class="btn-reset-small" id="btn-reset">Сбросить</button>
+                        </div>
                     </div>
                 </div>
-                <canvas></canvas>
+                <div style="height: 400px;">
+                    <canvas></canvas>
+                </div>
                 <div class="chart-controls" id="chart-controls">
                     <button class="chart-btn" data-range="month">Месяц</button>
                     <button class="chart-btn" data-range="3months">3 мес</button>
