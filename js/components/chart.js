@@ -34,8 +34,8 @@ export class ChartComponent {
             borderColor: dataset.color || chartColors[index % chartColors.length],
             backgroundColor: dataset.color || chartColors[index % chartColors.length],
             borderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
             fill: false,
             tension: 0.3,
         }));
