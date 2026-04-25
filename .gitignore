@@ -4,3 +4,4 @@ dist/
 .env.local
 .env.development.local
 .DS_Store
+AGENT_HISTORY.md
