@@ -13,6 +13,7 @@ export class TrendsPage {
         this.professions = [];
         this.chart = null;
         this.timeRange = 'all'; // 'week', 'month', '3months', '6months', 'year', 'all'
+        this.unsubscribeStore = null;
         
         // Элементы
         this.elements = {};
@@ -127,12 +128,33 @@ export class TrendsPage {
         });
         
         // Подписка на изменения store
-        store.subscribe((state, type) => {
-            if (type === 'profession:select' || type === 'profession:deselect') {
+        this.unsubscribeStore = store.subscribe((state, type) => {
+            if (type === 'profession:select' || type === 'profession:deselect' || type === 'trend:update') {
                 this._updateChart();
                 this._renderProfessionList(); // Обновляем состояние чекбоксов
             }
         });
+    }
+
+    /**
+     * Нормализация ответа API тренда
+     * @param {Array|Object} trendResponse
+     * @returns {Array}
+     */
+    _normalizeTrendData(trendResponse) {
+        if (Array.isArray(trendResponse)) {
+            return trendResponse;
+        }
+
+        if (Array.isArray(trendResponse?.data)) {
+            return trendResponse.data;
+        }
+
+        if (Array.isArray(trendResponse?.trend)) {
+            return trendResponse.trend;
+        }
+
+        return [];
     }
     
     /**
@@ -245,7 +267,11 @@ export class TrendsPage {
             
             // Загружаем данные если выбрали новую профессию
             if (!wasSelected) {
+                this.elements.loading.classList.remove('hidden');
+                this.elements.error.classList.add('hidden');
+
                 await this._loadTrendData(id);
+                this.elements.loading.classList.add('hidden');
                 this._updateChart(); // Сразу обновляем график
             }
         } else {
@@ -278,10 +304,20 @@ export class TrendsPage {
      */
     async _loadTrendData(id) {
         try {
-            const trendData = await api.getProfessionTrend(id);
-            store.setTrendData(id, trendData.data || trendData.trend || []);
+            const trendResponse = await api.getProfessionTrend(id);
+            const trendData = this._normalizeTrendData(trendResponse);
+
+            if (!trendData.length) {
+                console.warn('[TrendsPage] Empty or invalid trend payload:', id, trendResponse);
+            }
+
+            store.setTrendData(id, trendData);
+            return trendData;
         } catch (error) {
             console.error('[TrendsPage] Error loading trend:', error);
+            this._showError(error.message);
+            store.setTrendData(id, []);
+            return [];
         }
     }
     
@@ -323,6 +359,8 @@ export class TrendsPage {
         
         if (selectedIds.length === 0) {
             // Не скрываем график, просто рендерим пустой
+            this.elements.loading.classList.add('hidden');
+            this.elements.error.classList.add('hidden');
             this._renderEmptyChart();
             return;
         }
@@ -337,10 +375,13 @@ export class TrendsPage {
         
         selectedIds.forEach((id, index) => {
             const profession = this.professions.find(p => p.id === id);
-            const trendData = store.getTrendData(id) || [];
-            
+            const trendData = this._filterDatesByRange(store.getTrendData(id) || []);
+
+            if (!trendData.length) {
+                return;
+            }
+
             trendData.forEach(point => {
-                // Нормализуем дату к началу дня (без времени)
                 const normalizedDate = new Date(point.date);
                 normalizedDate.setHours(0, 0, 0, 0);
                 allDates.add(normalizedDate.toISOString());
@@ -360,25 +401,30 @@ export class TrendsPage {
                 color: colors[index],
             });
         });
-        
-        // Сортируем даты
-        const sortedDates = Array.from(allDates).sort();
-        const filteredDates = this._filterDatesByRange(sortedDates);
-        
-        // Рендерим график
+
+        if (!datasets.length) {
+            this._renderEmptyChart();
+            return;
+        }
+
+        const labels = Array.from(allDates).sort();
+
         this.chart.render({
             datasets,
-            labels: filteredDates,
+            labels,
         });
+
+        this.elements.loading.classList.add('hidden');
+        this.elements.error.classList.add('hidden');
     }
     
     /**
-     * Фильтрация дат по выбранному диапазону
-     * @param {string[]} dates
-     * @returns {string[]}
+     * Фильтрация данных тренда по выбранному диапазону
+     * @param {Array} trendData
+     * @returns {Array}
      */
-    _filterDatesByRange(dates) {
-        if (dates.length === 0) return [];
+    _filterDatesByRange(trendData) {
+        if (!trendData.length) return [];
         
         const now = new Date();
         const cutoffDates = {
@@ -392,7 +438,7 @@ export class TrendsPage {
         
         const cutoff = cutoffDates[this.timeRange] || cutoffDates.all;
         
-        return dates.filter(date => new Date(date) >= cutoff);
+        return trendData.filter(point => new Date(point.date) >= cutoff);
     }
     
     /**
@@ -415,9 +461,24 @@ export class TrendsPage {
      * Очистка при уничтожении
      */
     destroy() {
+        if (this.unsubscribeStore) {
+            this.unsubscribeStore();
+            this.unsubscribeStore = null;
+        }
+
         if (this.chart) {
             this.chart.destroy();
         }
+    }
+
+    /**
+     * Показать ошибку
+     * @param {string} message
+     */
+    _showError(message) {
+        this.elements.error.textContent = message;
+        this.elements.error.classList.remove('hidden');
+        this.elements.loading.classList.add('hidden');
     }
 }
 

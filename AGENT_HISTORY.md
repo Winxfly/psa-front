@@ -149,20 +149,20 @@ elements.professionsList.innerHTML = '';
 ✅ CORS работает  
 
 **Файлы:**
-| Файл | Строк | Описание |
-|------|-------|----------|
-| index.html | ~35 | Базовая разметка |
-| css/main.css | ~450 | Стили + тёмная тема + адаптивность |
-| js/api.js | ~120 | API клиент + кэш |
-| js/store.js | ~150 | Глобальное состояние |
-| js/router.js | ~90 | Hash-роутинг |
-| js/pages/home.js | ~130 | Главная страница |
-| js/pages/trends.js | ~230 | Страница трендов |
-| js/pages/profession.js | ~180 | Страница профессии |
-| js/components/header.js | ~50 | Хедер |
-| js/components/chart.js | ~120 | График (Chart.js) |
-| js/utils/helpers.js | ~80 | Утилиты |
-| app.js | ~80 | Точка входа |
+| Файл                    | Строк | Описание                           |
+| ----------------------- | ----- | ---------------------------------- |
+| index.html              | ~35   | Базовая разметка                   |
+| css/main.css            | ~450  | Стили + тёмная тема + адаптивность |
+| js/api.js               | ~120  | API клиент + кэш                   |
+| js/store.js             | ~150  | Глобальное состояние               |
+| js/router.js            | ~90   | Hash-роутинг                       |
+| js/pages/home.js        | ~130  | Главная страница                   |
+| js/pages/trends.js      | ~230  | Страница трендов                   |
+| js/pages/profession.js  | ~180  | Страница профессии                 |
+| js/components/header.js | ~50   | Хедер                              |
+| js/components/chart.js  | ~120  | График (Chart.js)                  |
+| js/utils/helpers.js     | ~80   | Утилиты                            |
+| app.js                  | ~80   | Точка входа                        |
 
 **Зависимости:**
 - Chart.js 4.4.1 (CDN)
@@ -361,15 +361,97 @@ psa-front/
 
 ---
 
-## Возможные улучшения
+### 2026-04-25 — Standalone frontend, Docker-first local dev, proxy fixes
 
-- [ ] Экспорт данных трендов в CSV/PDF
-- [ ] Общий график для всех профессий на главной
-- [ ] Поиск профессий на странице трендов
-- [ ] Drag-and-drop для изменения порядка профессий на графике
-- [ ] Экспорт скриншота графика
-- [ ] PWA (offline режим, service worker)
-- [ ] Ленивая загрузка графиков (intersection observer)
-- [ ] Поддержка светлой темы (переключатель)
-- [ ] Статистика по навыкам (облако тегов)
-- [ ] Сравнение навыков между профессиями
+**Этап 1: Подготовка frontend как отдельного сервиса**
+
+Проект переведён в standalone-режим без привязки к backend repo:
+- добавлен `package.json` и lockfile
+- добавлен `vite.config.js`
+- добавлены `Dockerfile`, `compose.yaml`, `Makefile`
+- добавлен production static runtime на `nginx`
+- добавлен `README.md` с контрактом reverse proxy и local/prod схемой
+
+**Этап 2: Same-origin API**
+
+Убран хардкод `http://localhost:8080/api/v1`.
+
+Сделано:
+- browser-side API по умолчанию идёт в `/api/v1`
+- добавлен runtime config (`public/runtime-config.js`, `js/config.js`)
+- production не требует frontend `.env`
+- `.env.example` оставлен только для local dev proxy
+
+**Этап 3: Production контракт**
+
+Зафиксирован целевой контракт деплоя:
+- frontend остаётся отдельным сервисом
+- внешний reverse proxy терминирует HTTPS/TLS
+- frontend container internal-only в production
+- `/` и статика идут на frontend
+- `/api/*` идут на backend
+- frontend container не проксирует API в production и не занимается TLS
+
+**Этап 4: Docker-first local development**
+
+Для локальной разработки всё переведено на Docker:
+- `make local` поднимает Vite dev server в контейнере
+- `make build` собирает production image
+- `make run` запускает production image локально
+- `make smoke` проверяет production image (`/`, asset, `runtime-config.js`, `404` на `/api/*`)
+
+**Этап 5: Local proxy через Caddy на host**
+
+Выявлен отдельный local dev кейс:
+- backend на хосте доступен не напрямую, а через локальный `Caddy`
+- frontend dev server работает внутри Docker-контейнера
+- `localhost` внутри контейнера не равен хостовой машине
+
+Что сделано:
+- поддержан `API_PROXY_TARGET=https://host.docker.internal`
+- для local HTTPS proxy добавлен `secure: false`
+- для Caddy-конфига, завязанного на `localhost`, добавлены:
+  - `Host: localhost`
+  - TLS `servername: localhost`
+- стандартный Vite proxy в этом кейсе заменён на custom middleware proxy через `https.request`, потому что стандартный путь давал пустой `200 OK` body
+
+Результат:
+- локальный `GET /api/v1/professions` через `http://localhost:3000` снова отдаёт полноценный JSON
+
+**Этап 6: Fixes в trends page**
+
+Найден и исправлен frontend-side баг страницы `/trends`:
+- `/trend` мог возвращать массив напрямую, а код ожидал только `response.data` или `response.trend`
+- из-за этого в store попадал пустой массив и график не строился
+
+Исправления:
+- добавлена нормализация ответа `_normalizeTrendData()`
+- `_toggleProfession()` показывает loading и дожидается загрузки тренда
+- `_updateChart()` фильтрует именно trend points, а не только labels
+- добавлена реакция на `trend:update`
+- поправлена сборка datasets для multi-line chart
+
+**Этап 7: Fixes в Chart.js integration**
+
+Исправлены два runtime-багa:
+- page-level plugin на графике профессии больше не использует глобальный `window.Chart`
+- `crosshair` plugin больше не падает на `chart.tooltip._active`, если tooltip отсутствует
+
+Дополнительно:
+- `Chart.js` переведён с CDN на bundled dependency
+- router исправлен с `popstate` на `hashchange`
+- устранена утечка подписки `store.subscribe()` на странице трендов
+
+**Изменённые файлы:**
+- `package.json`, `package-lock.json`
+- `vite.config.js`
+- `Dockerfile`, `compose.yaml`, `Makefile`
+- `README.md`, `.env.example`, `.dockerignore`, `.gitignore`
+- `public/runtime-config.js`, `js/config.js`
+- `js/api.js`, `js/router.js`
+- `js/components/chart.js`
+- `js/pages/trends.js`, `js/pages/profession.js`
+- `index.html`, `app.js`
+
+---
+

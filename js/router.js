@@ -8,7 +8,7 @@ class Router {
         this.currentRoute = null;
         
         // Обработка навигации
-        window.addEventListener('popstate', () => this._handlePopState());
+        window.addEventListener('hashchange', () => this._handleHashChange());
     }
     
     /**
@@ -42,7 +42,7 @@ class Router {
     /**
      * Обработчик изменения hash
      */
-    _handlePopState() {
+    _handleHashChange() {
         this._matchRoute();
     }
     

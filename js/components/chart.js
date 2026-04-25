@@ -2,6 +2,7 @@
  * Chart Component — обёртка над Chart.js
  */
 
+import Chart from 'chart.js/auto';
 import { getChartColors, formatShortDate } from '../utils/helpers.js';
 
 export class ChartComponent {
@@ -28,17 +29,20 @@ export class ChartComponent {
         
         const chartColors = getChartColors(datasets.length);
         
-        const chartDatasets = datasets.map((dataset, index) => ({
-            label: dataset.label,
-            data: dataset.data,
-            borderColor: dataset.color || chartColors[index % chartColors.length],
-            backgroundColor: dataset.color || chartColors[index % chartColors.length],
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            fill: false,
-            tension: 0.3,
-        }));
+        const chartDatasets = datasets.map((dataset, index) => {
+            const { color, ...datasetOptions } = dataset;
+
+            return {
+                ...datasetOptions,
+                borderColor: color || chartColors[index % chartColors.length],
+                backgroundColor: color || chartColors[index % chartColors.length],
+                borderWidth: 2,
+                pointRadius: dataset.pointRadius ?? 0,
+                pointHoverRadius: dataset.pointHoverRadius ?? 4,
+                fill: false,
+                tension: 0.3,
+            };
+        });
         
         // Уничтожить старый график
         if (this.chart) {
@@ -49,24 +53,31 @@ export class ChartComponent {
         const crosshairPlugin = {
             id: 'crosshair',
             afterDraw: (chart) => {
-                if (chart.tooltip._active && chart.tooltip._active.length) {
-                    const ctx = chart.ctx;
-                    const activePoint = chart.tooltip._active[0];
-                    const { x } = activePoint.element;
-                    const { top, bottom } = chart.chartArea;
-
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.moveTo(x, top);
-                    ctx.lineTo(x, bottom);
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#7aa2f7';
-                    ctx.setLineDash([5, 5]);
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                    ctx.shadowBlur = 4;
-                    ctx.stroke();
-                    ctx.restore();
+                const activeElements = chart.tooltip?.getActiveElements?.() || chart.tooltip?._active || [];
+                if (!activeElements.length) {
+                    return;
                 }
+
+                const ctx = chart.ctx;
+                const activePoint = activeElements[0];
+                const x = activePoint?.element?.x;
+                const { top, bottom } = chart.chartArea;
+
+                if (typeof x !== 'number') {
+                    return;
+                }
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, top);
+                ctx.lineTo(x, bottom);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#7aa2f7';
+                ctx.setLineDash([5, 5]);
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 4;
+                ctx.stroke();
+                ctx.restore();
             },
         };
         
@@ -147,7 +158,7 @@ export class ChartComponent {
                 },
                 ...options,
             },
-            plugins: [crosshairPlugin],
+            plugins: [crosshairPlugin, ...plugins],
         });
     }
     

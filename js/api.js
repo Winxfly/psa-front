@@ -2,7 +2,8 @@
  * API Client с кэшированием в localStorage
  */
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+import { config } from './config.js';
+
 const CACHE_PREFIX = 'psa_cache_';
 const DEFAULT_TTL = 5 * 60 * 1000; // 5 минут
 
@@ -102,7 +103,7 @@ export const api = {
         console.log('[API] Fetch:', endpoint);
         
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`);
+            const response = await fetch(`${config.apiBaseUrl}${endpoint}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);

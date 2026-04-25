@@ -3,7 +3,6 @@
  */
 
 import { router } from './js/router.js';
-import { store } from './js/store.js';
 import { Header } from './js/components/header.js';
 import { HomePage } from './js/pages/home.js';
 import { TrendsPage } from './js/pages/trends.js';

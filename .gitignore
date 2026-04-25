@@ -1,16 +1,6 @@
-# macOS
-.DS_Store
-
-# Logs
-*.log
-
-# Editor directories and files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Local environment
+node_modules/
+dist/
+.env
 .env.local
-.env.*.local
+.env.development.local
+.DS_Store
