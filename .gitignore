@@ -5,3 +5,5 @@ dist/
 .env.development.local
 .DS_Store
 AGENT_HISTORY.md
+.vite/deps/_metadata.json
+.vite/deps/package.json
