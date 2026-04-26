@@ -17,7 +17,8 @@ The frontend does not require a `.env` file for production.
 
 Optional local-only environment:
 
-- `API_PROXY_TARGET`: backend origin for the Dockerized Vite dev proxy. Default is `http://localhost:8080` on the host machine.
+- `API_PROXY_TARGET`: backend origin for the Dockerized Vite dev proxy. Default is `http://host.docker.internal`.
+- `API_PROXY_HOST_HEADER`: optional `Host` header override for local reverse proxies that route by host name.
 
 Example file: `.env.example`
 
@@ -26,7 +27,7 @@ Example file: `.env.example`
 Requirements:
 
 - Docker / Docker Compose
-- backend available on the host, by default at `http://localhost:8080`
+- backend available on the host, typically through Caddy on port `80`
 
 Start dev mode:
 
@@ -36,14 +37,15 @@ make local
 
 Open [http://localhost:3000](http://localhost:3000).
 
-If the backend is not running on `http://localhost:8080`, create `.env` from `.env.example` and set `API_PROXY_TARGET`.
+If the backend is not available through `http://host.docker.internal`, create `.env` from `.env.example` and override the proxy settings.
 
 Common local cases:
 
-- Backend process exposed directly on the host: `API_PROXY_TARGET=http://host.docker.internal:8080`
-- Backend exposed through local Caddy on the host: `API_PROXY_TARGET=https://host.docker.internal`
+- Backend exposed through local Caddy on the host: `API_PROXY_TARGET=http://host.docker.internal`
+- Backend exposed through local Caddy with `localhost` site block matching: `API_PROXY_TARGET=http://host.docker.internal` and `API_PROXY_HOST_HEADER=localhost`
+- Backend exposed directly on a custom host port: set `API_PROXY_TARGET` accordingly
 
-For HTTPS local proxy targets, the Vite dev proxy disables certificate verification so it can work with local/self-signed certificates from a host reverse proxy. This affects local development only.
+The Compose file maps `host.docker.internal` to the Docker host via `host-gateway`, so this flow works on Linux VMs as well as Docker Desktop environments.
 
 ## Production image
 
