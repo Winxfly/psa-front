@@ -573,6 +573,16 @@ a:hover {
     background-color: var(--bg-hover);
 }
 
+.data-table .table-empty,
+.data-table .table-limit-note {
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.data-table .table-limit-row:hover {
+    background-color: transparent;
+}
+
 .col-num {
     width: 50px;
     color: var(--text-muted);

@@ -7,6 +7,8 @@ import { ChartComponent } from '../components/chart.js';
 import { store } from '../store.js';
 import { escapeHtml, formatDate, formatShortDate, isShortUuid, isUuid } from '../utils/helpers.js';
 
+const MAX_SKILL_ROWS = 200;
+
 export class ProfessionPage {
     constructor(container) {
         this.container = container;
@@ -654,40 +656,44 @@ export class ProfessionPage {
      * Рендер таблиц
      */
     _renderTables() {
-        // Ключевые навыки
-        this.elements.formalSkillsBody.innerHTML = '';
-        if (this.profession.formal_skills && this.profession.formal_skills.length > 0) {
-            this.profession.formal_skills.forEach((skill, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="col-num">${index + 1}</td>
-                    <td class="col-skill">${escapeHtml(skill.skill)}</td>
-                    <td class="col-count">${skill.count}</td>
-                `;
-                this.elements.formalSkillsBody.appendChild(row);
-            });
-        } else {
-            this.elements.formalSkillsBody.innerHTML = `
-                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Нет данных</td></tr>
+        this._renderSkillsTable(this.elements.formalSkillsBody, this.profession.formal_skills);
+        this._renderSkillsTable(this.elements.extractedSkillsBody, this.profession.extracted_skills);
+    }
+
+    /**
+     * Рендер таблицы навыков с ограничением по количеству строк
+     * @param {HTMLElement} tbody
+     * @param {Array} skills
+     */
+    _renderSkillsTable(tbody, skills) {
+        tbody.innerHTML = '';
+
+        if (!skills || skills.length === 0) {
+            tbody.innerHTML = `
+                <tr><td colspan="3" class="table-empty">Нет данных</td></tr>
             `;
+            return;
         }
-        
-        // Навыки из описания вакансий
-        this.elements.extractedSkillsBody.innerHTML = '';
-        if (this.profession.extracted_skills && this.profession.extracted_skills.length > 0) {
-            this.profession.extracted_skills.forEach((skill, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="col-num">${index + 1}</td>
-                    <td class="col-skill">${escapeHtml(skill.skill)}</td>
-                    <td class="col-count">${skill.count}</td>
-                `;
-                this.elements.extractedSkillsBody.appendChild(row);
-            });
-        } else {
-            this.elements.extractedSkillsBody.innerHTML = `
-                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Нет данных</td></tr>
+
+        skills.slice(0, MAX_SKILL_ROWS).forEach((skill, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="col-num">${index + 1}</td>
+                <td class="col-skill">${escapeHtml(skill.skill)}</td>
+                <td class="col-count">${skill.count}</td>
             `;
+            tbody.appendChild(row);
+        });
+
+        if (skills.length > MAX_SKILL_ROWS) {
+            const row = document.createElement('tr');
+            row.className = 'table-limit-row';
+            row.innerHTML = `
+                <td colspan="3" class="table-limit-note">
+                    Показаны первые ${MAX_SKILL_ROWS} из ${skills.length}
+                </td>
+            `;
+            tbody.appendChild(row);
         }
     }
     
