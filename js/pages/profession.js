@@ -80,7 +80,7 @@ export class ProfessionPage {
                 <div class="tables-wrapper">
                     <div class="table-section collapsed" data-collapsible-table>
                         <button class="table-title table-toggle" type="button" aria-expanded="false">
-                            <span>Ключевые требования</span>
+                            <span>Ключевые навыки</span>
                             <span class="table-toggle-icon" aria-hidden="true">⌄</span>
                         </button>
                         <div class="table-content">
@@ -93,7 +93,7 @@ export class ProfessionPage {
                                     </tr>
                                 </thead>
                                 <tbody id="formal-skills-body">
-                                    <!-- Ключевые требования -->
+                                    <!-- Ключевые навыки -->
                                 </tbody>
                             </table>
                         </div>
@@ -654,7 +654,7 @@ export class ProfessionPage {
      * Рендер таблиц
      */
     _renderTables() {
-        // Ключевые требования
+        // Ключевые навыки
         this.elements.formalSkillsBody.innerHTML = '';
         if (this.profession.formal_skills && this.profession.formal_skills.length > 0) {
             this.profession.formal_skills.forEach((skill, index) => {
