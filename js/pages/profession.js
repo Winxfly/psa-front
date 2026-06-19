@@ -101,7 +101,7 @@ export class ProfessionPage {
                     
                     <div class="table-section collapsed" data-collapsible-table>
                         <button class="table-title table-toggle" type="button" aria-expanded="false">
-                            <span>Навыки из описания</span>
+                            <span>Навыки из описания вакансий</span>
                             <span class="table-toggle-icon" aria-hidden="true">⌄</span>
                         </button>
                         <div class="table-content">
@@ -114,7 +114,7 @@ export class ProfessionPage {
                                     </tr>
                                 </thead>
                                 <tbody id="extracted-skills-body">
-                                    <!-- Навыки из описания -->
+                                    <!-- Навыки из описания вакансий -->
                                 </tbody>
                             </table>
                         </div>
@@ -672,7 +672,7 @@ export class ProfessionPage {
             `;
         }
         
-        // Навыки из описания
+        // Навыки из описания вакансий
         this.elements.extractedSkillsBody.innerHTML = '';
         if (this.profession.extracted_skills && this.profession.extracted_skills.length > 0) {
             this.profession.extracted_skills.forEach((skill, index) => {
