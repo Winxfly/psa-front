@@ -12,7 +12,7 @@ export class TrendsPage {
         this.container = container;
         this.professions = [];
         this.chart = null;
-        this.timeRange = 'all'; // 'week', 'month', '3months', '6months', 'year', 'all'
+        this.timeRange = '3months'; // 'week', 'month', '3months', '6months', 'year', 'all'
         this.unsubscribeStore = null;
         
         // Элементы
@@ -49,22 +49,22 @@ export class TrendsPage {
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
                     <div class="chart-header-top">
-                        <h2 class="chart-title">Динамика вакансий</h2>
+                        <h2 class="chart-title">Динамика</h2>
                         <div class="chart-actions">
                             <span class="selection-count" id="selection-count">0/5</span>
                             <button class="btn-reset-small" id="btn-reset">Сбросить</button>
                         </div>
                     </div>
                 </div>
-                <div style="height: 400px;">
+                <div class="chart-viewport">
                     <canvas></canvas>
                 </div>
                 <div class="chart-controls" id="chart-controls">
-                    <button class="chart-btn" data-range="month">Месяц</button>
-                    <button class="chart-btn" data-range="3months">3 мес</button>
-                    <button class="chart-btn" data-range="6months">6 мес</button>
-                    <button class="chart-btn" data-range="year">Год</button>
-                    <button class="chart-btn active" data-range="all">Всё время</button>
+                    <button class="chart-btn" data-range="month">1М</button>
+                    <button class="chart-btn active" data-range="3months">3М</button>
+                    <button class="chart-btn" data-range="6months">6М</button>
+                    <button class="chart-btn" data-range="year">1Г</button>
+                    <button class="chart-btn" data-range="all">Всё</button>
                 </div>
             </div>
             <div class="profession-list" id="profession-list">
@@ -384,7 +384,7 @@ export class TrendsPage {
             trendData.forEach(point => {
                 const normalizedDate = new Date(point.date);
                 normalizedDate.setHours(0, 0, 0, 0);
-                allDates.add(normalizedDate.toISOString());
+                allDates.add(normalizedDate.getTime());
             });
             
             datasets.push({
@@ -394,7 +394,7 @@ export class TrendsPage {
                     const normalizedDate = new Date(point.date);
                     normalizedDate.setHours(0, 0, 0, 0);
                     return {
-                        x: normalizedDate.toISOString(),
+                        x: normalizedDate.getTime(),
                         y: point.vacancy_count,
                     };
                 }),
@@ -407,11 +407,20 @@ export class TrendsPage {
             return;
         }
 
-        const labels = Array.from(allDates).sort();
+        const labels = Array.from(allDates).sort((a, b) => a - b);
 
         this.chart.render({
             datasets,
             labels,
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: labels[0],
+                        max: labels[labels.length - 1],
+                    },
+                },
+            },
         });
 
         this.elements.loading.classList.add('hidden');

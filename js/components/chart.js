@@ -5,15 +5,38 @@
 import Chart from 'chart.js/auto';
 import { getChartColors, formatShortDate } from '../utils/helpers.js';
 
+function formatChartDate(value, labels = [], index = 0) {
+    if (typeof value === 'number' && value > 1_000_000_000_000) {
+        return formatShortDate(new Date(value));
+    }
+
+    const label = labels[index];
+    if (typeof label === 'number') {
+        return formatShortDate(new Date(label));
+    }
+
+    if (label) {
+        return formatShortDate(label);
+    }
+
+    if (typeof value === 'number') {
+        return formatShortDate(new Date(value));
+    }
+
+    return value ? formatShortDate(value) : '';
+}
+
 export class ChartComponent {
     constructor(container, options = {}) {
         this.container = container;
         this.chart = null;
+        this._handleThemeChange = () => this._refreshThemeColors();
         this.options = {
             type: 'line',
             height: 400,
             ...options
         };
+        window.addEventListener('psa:themechange', this._handleThemeChange);
     }
     
     /**
@@ -26,6 +49,7 @@ export class ChartComponent {
      */
     render({ datasets, labels, plugins = [], options = {} }) {
         const ctx = this._getOrCreateCanvas();
+        const themeColors = this._getThemeColors();
         
         const chartColors = getChartColors(datasets.length);
         
@@ -72,15 +96,133 @@ export class ChartComponent {
                 ctx.moveTo(x, top);
                 ctx.lineTo(x, bottom);
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = '#7aa2f7';
+                ctx.strokeStyle = this._getThemeColors().crosshair;
                 ctx.setLineDash([5, 5]);
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
                 ctx.shadowBlur = 4;
                 ctx.stroke();
                 ctx.restore();
             },
         };
         
+        const defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    bottom: 30,
+                },
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    display: datasets.length > 1,
+                    position: 'top',
+                    labels: {
+                        color: themeColors.textPrimary,
+                        usePointStyle: true,
+                    },
+                },
+                tooltip: {
+                    backgroundColor: themeColors.tooltipBg,
+                    titleColor: themeColors.textPrimary,
+                    bodyColor: themeColors.textMuted,
+                    borderColor: themeColors.tooltipBorder,
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    itemSort: (a, b) => b.parsed.y - a.parsed.y,
+                    callbacks: {
+                        label: (context) => {
+                            const value = context.parsed.y;
+                            return `${context.dataset.label}: ${value} вакансий`;
+                        },
+                        title: (items) => {
+                            const item = items[0];
+                            return item ? formatChartDate(item.parsed?.x ?? item.label, labels, item.dataIndex) : '';
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: themeColors.grid,
+                    },
+                    ticks: {
+                        color: themeColors.textMuted,
+                        maxTicksLimit: 10,
+                        maxRotation: 0,
+                        callback: (value, index) => {
+                            return formatChartDate(value, labels, index);
+                        },
+                    },
+                },
+                y: {
+                    grid: {
+                        color: themeColors.grid,
+                    },
+                    ticks: {
+                        color: themeColors.textMuted,
+                        precision: 0,
+                    },
+                    beginAtZero: false,
+                },
+            },
+        };
+
+        const chartOptions = {
+            ...defaultOptions,
+            ...options,
+            plugins: {
+                ...defaultOptions.plugins,
+                ...options.plugins,
+                legend: {
+                    ...defaultOptions.plugins.legend,
+                    ...options.plugins?.legend,
+                },
+                tooltip: {
+                    ...defaultOptions.plugins.tooltip,
+                    ...options.plugins?.tooltip,
+                    callbacks: {
+                        ...defaultOptions.plugins.tooltip.callbacks,
+                        ...options.plugins?.tooltip?.callbacks,
+                    },
+                },
+            },
+            scales: {
+                ...defaultOptions.scales,
+                ...options.scales,
+                x: {
+                    ...defaultOptions.scales.x,
+                    ...options.scales?.x,
+                    ticks: {
+                        ...defaultOptions.scales.x.ticks,
+                        ...options.scales?.x?.ticks,
+                    },
+                    grid: {
+                        ...defaultOptions.scales.x.grid,
+                        ...options.scales?.x?.grid,
+                    },
+                },
+                y: {
+                    ...defaultOptions.scales.y,
+                    ...options.scales?.y,
+                    ticks: {
+                        ...defaultOptions.scales.y.ticks,
+                        ...options.scales?.y?.ticks,
+                    },
+                    grid: {
+                        ...defaultOptions.scales.y.grid,
+                        ...options.scales?.y?.grid,
+                    },
+                },
+            },
+        };
+
         // Создать новый график
         this.chart = new Chart(ctx, {
             type: 'line',
@@ -88,76 +230,7 @@ export class ChartComponent {
                 labels: labels,
                 datasets: chartDatasets,
             },
-            plugins: plugins,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        bottom: 30,
-                    },
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                plugins: {
-                    legend: {
-                        display: datasets.length > 1,
-                        position: 'top',
-                        labels: {
-                            color: '#e0e0e0',
-                            usePointStyle: true,
-                        },
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(33, 34, 52, 0.95)',
-                        titleColor: '#e0e0e0',
-                        bodyColor: '#a0a0b0',
-                        borderColor: '#3d405f',
-                        borderWidth: 1,
-                        padding: 12,
-                        displayColors: true,
-                        callbacks: {
-                            label: (context) => {
-                                const value = context.parsed.y;
-                                return `${context.dataset.label}: ${value} вакансий`;
-                            },
-                            title: (items) => {
-                                const label = items[0]?.label;
-                                return label ? formatShortDate(label) : '';
-                            },
-                        },
-                    },
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: '#3d405f',
-                        },
-                        ticks: {
-                            color: '#a0a0b0',
-                            maxTicksLimit: 10,
-                            maxRotation: 0,
-                            callback: (value, index) => {
-                                const label = labels[index];
-                                return label ? formatShortDate(label) : '';
-                            },
-                        },
-                    },
-                    y: {
-                        grid: {
-                            color: '#3d405f',
-                        },
-                        ticks: {
-                            color: '#a0a0b0',
-                            precision: 0,
-                        },
-                        beginAtZero: false,
-                    },
-                },
-                ...options,
-            },
+            options: chartOptions,
             plugins: [crosshairPlugin, ...plugins],
         });
     }
@@ -187,6 +260,48 @@ export class ChartComponent {
             this.chart.update();
         }
     }
+
+    /**
+     * Получить цвета текущей темы из CSS variables.
+     * @returns {Object}
+     */
+    _getThemeColors() {
+        const styles = getComputedStyle(document.documentElement);
+        const cssVar = (name) => styles.getPropertyValue(name).trim();
+
+        return {
+            textPrimary: cssVar('--text-primary'),
+            textMuted: cssVar('--text-muted'),
+            grid: cssVar('--chart-grid'),
+            tooltipBg: cssVar('--chart-tooltip-bg'),
+            tooltipBorder: cssVar('--chart-tooltip-border'),
+            crosshair: cssVar('--chart-crosshair'),
+        };
+    }
+
+    /**
+     * Обновить цвета canvas-графика после смены темы.
+     */
+    _refreshThemeColors() {
+        if (!this.chart) {
+            return;
+        }
+
+        const colors = this._getThemeColors();
+        const { options } = this.chart;
+
+        options.plugins.legend.labels.color = colors.textPrimary;
+        options.plugins.tooltip.backgroundColor = colors.tooltipBg;
+        options.plugins.tooltip.titleColor = colors.textPrimary;
+        options.plugins.tooltip.bodyColor = colors.textMuted;
+        options.plugins.tooltip.borderColor = colors.tooltipBorder;
+        options.scales.x.grid.color = colors.grid;
+        options.scales.x.ticks.color = colors.textMuted;
+        options.scales.y.grid.color = colors.grid;
+        options.scales.y.ticks.color = colors.textMuted;
+
+        this.chart.update('none');
+    }
     
     /**
      * Уничтожить график
@@ -196,6 +311,7 @@ export class ChartComponent {
             this.chart.destroy();
             this.chart = null;
         }
+        window.removeEventListener('psa:themechange', this._handleThemeChange);
         this.container.innerHTML = '';
     }
 }

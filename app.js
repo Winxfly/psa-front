@@ -7,6 +7,7 @@ import { Header } from './js/components/header.js';
 import { HomePage } from './js/pages/home.js';
 import { TrendsPage } from './js/pages/trends.js';
 import { ProfessionPage } from './js/pages/profession.js';
+import { initTheme } from './js/theme.js';
 
 // Глобальные компоненты
 let header = null;
@@ -23,6 +24,7 @@ const elements = {
  */
 function init() {
     console.log('[PSA] Initializing application...');
+    initTheme();
     
     // Инициализация хедера
     header = new Header(elements.header);

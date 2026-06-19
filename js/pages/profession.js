@@ -4,6 +4,7 @@
 
 import { api } from '../api.js';
 import { ChartComponent } from '../components/chart.js';
+import { store } from '../store.js';
 import { escapeHtml, formatDate, formatShortDate } from '../utils/helpers.js';
 
 export class ProfessionPage {
@@ -11,7 +12,7 @@ export class ProfessionPage {
         this.container = container;
         this.profession = null;
         this.chart = null;
-        this.timeRange = 'all';
+        this.timeRange = '3months';
         this.filteredTrend = [];
         
         // Для выделения диапазона кликами
@@ -50,8 +51,8 @@ export class ProfessionPage {
             <div class="chart-container" id="chart-container">
                 <div class="chart-header">
                     <div class="chart-header-top">
-                        <h2 class="chart-title">Динамика вакансий</h2>
-                        <div class="chart-range-info" id="chart-range-info">
+                        <h2 class="chart-title">Динамика</h2>
+                        <div class="chart-range-info hidden" id="chart-range-info">
                             <span class="chart-range-dates" id="chart-range-dates"></span>
                             <span class="chart-range-change" id="chart-range-change"></span>
                         </div>
@@ -60,15 +61,15 @@ export class ProfessionPage {
                         </div>
                     </div>
                 </div>
-                <div style="height: 400px;">
+                <div class="chart-viewport">
                     <canvas id="chart-canvas"></canvas>
                 </div>
                 <div class="chart-controls" id="chart-controls">
-                    <button class="chart-btn" data-range="month">Месяц</button>
-                    <button class="chart-btn" data-range="3months">3 мес</button>
-                    <button class="chart-btn" data-range="6months">6 мес</button>
-                    <button class="chart-btn" data-range="year">Год</button>
-                    <button class="chart-btn active" data-range="all">Всё время</button>
+                    <button class="chart-btn" data-range="month">1М</button>
+                    <button class="chart-btn active" data-range="3months">3М</button>
+                    <button class="chart-btn" data-range="6months">6М</button>
+                    <button class="chart-btn" data-range="year">1Г</button>
+                    <button class="chart-btn" data-range="all">Всё</button>
                 </div>
             </div>
             
@@ -77,36 +78,46 @@ export class ProfessionPage {
             
             <div class="tables-container hidden" id="tables-container">
                 <div class="tables-wrapper">
-                    <div class="table-section">
-                        <h2 class="table-title">Формальные навыки</h2>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-num">#</th>
-                                    <th class="col-skill">Навык</th>
-                                    <th class="col-count">Упоминаний</th>
-                                </tr>
-                            </thead>
-                            <tbody id="formal-skills-body">
-                                <!-- Формальные навыки -->
-                            </tbody>
-                        </table>
+                    <div class="table-section collapsed" data-collapsible-table>
+                        <button class="table-title table-toggle" type="button" aria-expanded="false">
+                            <span>Ключевые требования</span>
+                            <span class="table-toggle-icon" aria-hidden="true">⌄</span>
+                        </button>
+                        <div class="table-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-num">#</th>
+                                        <th class="col-skill">Навык</th>
+                                        <th class="col-count">Упоминаний</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="formal-skills-body">
+                                    <!-- Ключевые требования -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     
-                    <div class="table-section">
-                        <h2 class="table-title">Извлечённые навыки</h2>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-num">#</th>
-                                    <th class="col-skill">Навык</th>
-                                    <th class="col-count">Упоминаний</th>
-                                </tr>
-                            </thead>
-                            <tbody id="extracted-skills-body">
-                                <!-- Извлечённые навыки -->
-                            </tbody>
-                        </table>
+                    <div class="table-section collapsed" data-collapsible-table>
+                        <button class="table-title table-toggle" type="button" aria-expanded="false">
+                            <span>Навыки из описания</span>
+                            <span class="table-toggle-icon" aria-hidden="true">⌄</span>
+                        </button>
+                        <div class="table-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-num">#</th>
+                                        <th class="col-skill">Навык</th>
+                                        <th class="col-count">Упоминаний</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="extracted-skills-body">
+                                    <!-- Навыки из описания -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,6 +170,22 @@ export class ProfessionPage {
                 this._handleChartClick(e);
             });
         }
+
+        const shouldCollapseTables = window.matchMedia('(max-width: 900px), (max-height: 500px)').matches;
+
+        this.container.querySelectorAll('[data-collapsible-table] .table-toggle').forEach(button => {
+            const section = button.closest('[data-collapsible-table]');
+
+            if (!shouldCollapseTables) {
+                section.classList.remove('collapsed');
+                button.setAttribute('aria-expanded', 'true');
+            }
+
+            button.addEventListener('click', () => {
+                const isCollapsed = section.classList.toggle('collapsed');
+                button.setAttribute('aria-expanded', String(!isCollapsed));
+            });
+        });
     }
     
     /**
@@ -285,12 +312,7 @@ export class ProfessionPage {
      * @returns {string}
      */
     _formatDateRange(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('ru-RU', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
+        return formatShortDate(dateStr);
     }
     
     /**
@@ -377,20 +399,64 @@ export class ProfessionPage {
      */
     _renderProfessionInfo() {
         const scrapedDate = formatDate(this.profession.scraped_at);
+        const hhVacanciesUrl = this._buildHHVacanciesUrl();
         
         this.elements.professionInfo.innerHTML = `
             <h2 class="profession-info-title">${escapeHtml(this.profession.profession_name)}</h2>
             <div class="profession-meta">
                 <div class="profession-meta-item">
-                    <span class="profession-meta-label">Дата сбора данных</span>
+                    <span class="profession-meta-label">Последний сбор данных</span>
                     <span class="profession-meta-value">${scrapedDate}</span>
                 </div>
                 <div class="profession-meta-item">
                     <span class="profession-meta-label">Найдено вакансий</span>
                     <span class="profession-meta-value">${this.profession.vacancy_count}</span>
                 </div>
+                ${hhVacanciesUrl ? `
+                    <div class="profession-meta-item profession-meta-action">
+                        <a class="btn btn-primary profession-vacancies-link" href="${hhVacanciesUrl}" target="_blank" rel="noopener noreferrer">
+                            Посмотреть вакансии
+                        </a>
+                    </div>
+                ` : ''}
             </div>
         `;
+    }
+
+    /**
+     * Построить ссылку на HH по query профессии, если query доступен.
+     * @returns {string}
+     */
+    _buildHHVacanciesUrl() {
+        const vacancyQuery = this._getVacancyQuery();
+
+        if (!vacancyQuery) {
+            return '';
+        }
+
+        const url = new URL('https://hh.ru/search/vacancy');
+        url.searchParams.set('text', `name:(${vacancyQuery})`);
+        url.searchParams.set('area', '113');
+        url.searchParams.set('ored_clusters', 'true');
+        url.searchParams.set('enable_snippets', 'true');
+
+        return url.toString();
+    }
+
+    /**
+     * Получить HH query из latest response или fallback-списка профессий.
+     * @returns {string}
+     */
+    _getVacancyQuery() {
+        if (this.profession.vacancy_query) {
+            return this.profession.vacancy_query;
+        }
+
+        const profession = store.getProfessions().find(item => {
+            return item.id === this.profession.profession_id || item.name === this.profession.profession_name;
+        });
+
+        return profession?.vacancy_query || '';
     }
     
     /**
@@ -411,7 +477,7 @@ export class ProfessionPage {
         
         // Инициализируем график если нужно
         if (!this.chart) {
-            this.chart = new ChartComponent(this.elements.chartContainer.querySelector('canvas').parentElement);
+            this.chart = new ChartComponent(this.elements.chartContainer.querySelector('.chart-viewport'));
         }
         
         const labels = this.filteredTrend.map(point => point.date);
@@ -472,6 +538,10 @@ export class ProfessionPage {
 
                 const ctx = chart.ctx;
                 const chartArea = chart.chartArea;
+                const styles = getComputedStyle(document.documentElement);
+                const crosshairColor = styles.getPropertyValue('--chart-crosshair').trim();
+                const positiveRangeColor = styles.getPropertyValue('--range-positive-bg').trim();
+                const negativeRangeColor = styles.getPropertyValue('--range-negative-bg').trim();
 
                 // Рисуем линии и закрашенную область для каждой точки
                 self.clickPoints.forEach((clickPoint) => {
@@ -485,7 +555,7 @@ export class ProfessionPage {
 
                     // Рисуем вертикальную линию
                     ctx.save();
-                    ctx.strokeStyle = '#7aa2f7';
+                    ctx.strokeStyle = crosshairColor;
                     ctx.lineWidth = 2;
                     ctx.setLineDash([5, 5]);
 
@@ -511,9 +581,7 @@ export class ProfessionPage {
                             const startValue = self.clickPoints[0].vacancy_count;
                             const endValue = self.clickPoints[1].vacancy_count;
                             const isPositive = endValue >= startValue;
-                            const color = isPositive
-                                ? 'rgba(158, 206, 106, 0.1)'  // --accent-success с прозрачностью
-                                : 'rgba(247, 118, 142, 0.1)'; // --accent-error с прозрачностью
+                            const color = isPositive ? positiveRangeColor : negativeRangeColor;
 
                             ctx.save();
                             ctx.fillStyle = color;
@@ -554,7 +622,7 @@ export class ProfessionPage {
      * Рендер таблиц
      */
     _renderTables() {
-        // Формальные навыки
+        // Ключевые требования
         this.elements.formalSkillsBody.innerHTML = '';
         if (this.profession.formal_skills && this.profession.formal_skills.length > 0) {
             this.profession.formal_skills.forEach((skill, index) => {
@@ -572,7 +640,7 @@ export class ProfessionPage {
             `;
         }
         
-        // Извлечённые навыки
+        // Навыки из описания
         this.elements.extractedSkillsBody.innerHTML = '';
         if (this.profession.extracted_skills && this.profession.extracted_skills.length > 0) {
             this.profession.extracted_skills.forEach((skill, index) => {
