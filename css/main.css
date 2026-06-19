@@ -239,7 +239,7 @@ a:hover {
 .nav-btn.active {
     background-color: var(--accent-primary);
     border-color: var(--accent-primary);
-    color: var(--warning-text);
+    color: var(--bg-primary);
 }
 
 .theme-switch {
@@ -758,7 +758,7 @@ a:hover {
     border: 1px solid var(--accent-warning);
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
-    color: var(--bg-primary);
+    color: var(--warning-text);
     font-weight: 600;
     box-shadow: var(--shadow-md);
     z-index: 1000;
