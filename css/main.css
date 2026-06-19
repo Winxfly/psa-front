@@ -29,6 +29,7 @@
     --border-color: #424b5f;
     --focus-ring: rgba(155, 188, 255, 0.18);
     --warning-bg: rgba(232, 192, 113, 0.95);
+    --warning-text: #1f2227;
     --error-bg: rgba(255, 127, 155, 0.12);
     --chart-grid: #424b5f;
     --chart-tooltip-bg: rgba(31, 34, 39, 0.96);
@@ -74,6 +75,7 @@
     --border-color: #d8ccb8;
     --focus-ring: rgba(49, 95, 187, 0.18);
     --warning-bg: rgba(255, 229, 176, 0.98);
+    --warning-text: #3d2600;
     --error-bg: rgba(184, 59, 94, 0.1);
     --chart-grid: #c8b99f;
     --chart-tooltip-bg: rgba(255, 250, 240, 0.98);
@@ -237,7 +239,7 @@ a:hover {
 .nav-btn.active {
     background-color: var(--accent-primary);
     border-color: var(--accent-primary);
-    color: var(--bg-primary);
+    color: var(--warning-text);
 }
 
 .theme-switch {
