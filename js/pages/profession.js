@@ -5,7 +5,7 @@
 import { api } from '../api.js';
 import { ChartComponent } from '../components/chart.js';
 import { store } from '../store.js';
-import { escapeHtml, formatDate, formatShortDate } from '../utils/helpers.js';
+import { escapeHtml, formatDate, formatShortDate, isShortUuid, isUuid } from '../utils/helpers.js';
 
 export class ProfessionPage {
     constructor(container) {
@@ -24,7 +24,7 @@ export class ProfessionPage {
     
     /**
      * Инициализация страницы
-     * @param {string} id - ID профессии
+     * @param {string} id - ID профессии или короткий публичный ID
      */
     async init(id) {
         // Сбрасываем состояние
@@ -383,8 +383,9 @@ export class ProfessionPage {
         this._showLoading();
         
         try {
+            const professionId = await this._resolveProfessionId(id);
             // Загружаем данные с трендом
-            this.profession = await api.getProfessionLatest(id, true);
+            this.profession = await api.getProfessionLatest(professionId, true);
             this._renderProfessionInfo();
             this._renderChart();
             this._renderTables();
@@ -392,6 +393,37 @@ export class ProfessionPage {
         } catch (error) {
             this._showError(error.message);
         }
+    }
+
+    /**
+     * Разрешить полный UUID профессии из route параметра.
+     * @param {string} routeId
+     * @returns {Promise<string>}
+     */
+    async _resolveProfessionId(routeId) {
+        if (isUuid(routeId)) {
+            return routeId;
+        }
+
+        if (!isShortUuid(routeId)) {
+            throw new Error('Некорректная ссылка на профессию');
+        }
+
+        const professions = await api.getProfessions();
+        store.setProfessions(professions);
+        const matches = professions.filter(profession => {
+            return profession.id.replaceAll('-', '').startsWith(routeId);
+        });
+
+        if (matches.length === 1) {
+            return matches[0].id;
+        }
+
+        if (matches.length > 1) {
+            throw new Error('Неоднозначная ссылка на профессию');
+        }
+
+        throw new Error('Профессия не найдена');
     }
     
     /**

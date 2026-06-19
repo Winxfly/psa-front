@@ -70,6 +70,37 @@ export function generateId() {
     return Math.random().toString(36).substring(2, 9);
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SHORT_UUID_PATTERN = /^[0-9a-f]{10}$/i;
+const SHORT_UUID_LENGTH = 10;
+
+/**
+ * Проверить полный UUID.
+ * @param {string} value
+ * @returns {boolean}
+ */
+export function isUuid(value) {
+    return UUID_PATTERN.test(value);
+}
+
+/**
+ * Проверить короткий публичный идентификатор профессии.
+ * @param {string} value
+ * @returns {boolean}
+ */
+export function isShortUuid(value) {
+    return SHORT_UUID_PATTERN.test(value);
+}
+
+/**
+ * Получить короткий публичный идентификатор профессии.
+ * @param {string} id
+ * @returns {string}
+ */
+export function getShortProfessionId(id) {
+    return id.replaceAll('-', '').slice(0, SHORT_UUID_LENGTH);
+}
+
 /**
  * Получить цвета для графиков
  * @param {number} count - Количество цветов

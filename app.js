@@ -84,7 +84,7 @@ async function handleTrends() {
 /**
  * Обработчик страницы профессии
  * @param {Object} params - Параметры маршрута
- * @param {string} params.id - ID профессии
+ * @param {string} params.id - UUID или короткий публичный ID профессии
  */
 async function handleProfession(params) {
     console.log('[PSA] Route: Profession', params.id);

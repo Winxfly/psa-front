@@ -4,7 +4,7 @@
 
 import { api } from '../api.js';
 import { store } from '../store.js';
-import { escapeHtml, debounce } from '../utils/helpers.js';
+import { escapeHtml, debounce, getShortProfessionId } from '../utils/helpers.js';
 
 export class HomePage {
     constructor(container) {
@@ -138,7 +138,7 @@ export class HomePage {
         this.filteredProfessions.forEach((profession, index) => {
             const card = document.createElement('a');
             card.className = 'profession-card';
-            card.href = `#/profession/${profession.id}`;
+            card.href = `#/profession/${getShortProfessionId(profession.id)}`;
             
             const title = document.createElement('span');
             title.className = 'profession-card-title';
