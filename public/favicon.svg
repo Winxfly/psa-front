@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
     <rect width="64" height="64" rx="14" fill="#1f2227"/>
-    <rect x="4" y="4" width="56" height="56" rx="11" fill="#303746" stroke="#424b5f" stroke-width="2"/>
     <text
         x="32"
-        y="44"
+        y="49"
         fill="#9bbcff"
         font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        font-size="38"
+        font-size="50"
         font-weight="900"
         text-anchor="middle"
-        letter-spacing="-2"
+        letter-spacing="-3"
     >P</text>
 </svg>
