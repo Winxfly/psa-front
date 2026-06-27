@@ -471,6 +471,7 @@ export class ProfessionPage {
         const url = new URL('https://hh.ru/search/vacancy');
         url.searchParams.set('text', `name:(${vacancyQuery})`);
         url.searchParams.set('area', '113');
+        url.searchParams.set('search_field', 'name');
         url.searchParams.set('ored_clusters', 'true');
         url.searchParams.set('enable_snippets', 'true');
 
