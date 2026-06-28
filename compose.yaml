@@ -1,4 +1,10 @@
 services:
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/winxfly/psa-front:latest}
+    networks:
+      - psa-network
+    restart: unless-stopped
+
   frontend-dev:
     image: node:22-alpine
     working_dir: /app
@@ -16,3 +22,8 @@ services:
 
 volumes:
   psa_front_node_modules:
+
+networks:
+  psa-network:
+    name: ${PSA_NETWORK:-psa-network}
+    external: true

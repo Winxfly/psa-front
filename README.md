@@ -56,6 +56,7 @@ Production contract:
 - The frontend container is internal-only in production and should not publish its port directly to the public Internet.
 - The frontend container serves only static files.
 - Browser API calls stay same-origin and use `/api/v1`.
+- Caddy/reverse proxy routing lives outside this repo and must route `/` to the frontend container and `/api/*` to the backend.
 
 Build the image:
 
@@ -79,12 +80,52 @@ make smoke
 
 This smoke-check is local-only. It temporarily publishes the container on `127.0.0.1` to verify the image before deployment; that is not part of the production deployment contract.
 
+## Production deploy
+
+GitHub Actions builds the frontend, publishes `ghcr.io/winxfly/psa-front:latest` and `ghcr.io/winxfly/psa-front:<commit-sha>`, then deploys the frontend service on the VPS over SSH.
+
+Required repository variables:
+
+- `VPS_HOST` - public VPS host, for example `govkalik.ru`
+- `VPS_PORT` - SSH port, usually `22`
+- `VPS_USER` - SSH user, for example `psa`
+- `VPS_PROJECT_DIR` - path to this frontend repo on the VPS, for example `/home/psa/psa-front`
+
+Required repository secrets:
+
+- `VPS_SSH_PRIVATE_KEY`
+- `VPS_KNOWN_HOSTS`
+
+The deploy workflow runs this on the VPS:
+
+```bash
+git fetch --prune origin
+git reset --hard origin/<default-branch>
+make prod-pull
+make prod-up
+```
+
+The production Compose service uses the shared external Docker network `psa-network` by default and does not publish ports:
+
+```bash
+make prod-up
+```
+
+If a different shared network name is needed, set `PSA_NETWORK`.
+
+Post-deploy smoke-checks hit the public Caddy entrypoint:
+
+- `https://govkalik.ru/`
+- `https://govkalik.ru/runtime-config.js`
+- `https://govkalik.ru/api/v1/professions`
+
 ## Reverse proxy scheme
 
 The frontend repo should describe only this reverse proxy contract:
 
 1. `GET /` and static assets -> frontend container
 2. `GET/POST /api/*` -> backend service
-3. Browser requests from the frontend -> `/api/v1/...`
+3. `GET /health/live` and `GET /health/ready` -> backend service
+4. Browser requests from the frontend -> `/api/v1/...`
 
 This keeps frontend and backend fully separate while preserving same-origin behavior in the browser. The reverse proxy implementation itself lives outside this repository.
